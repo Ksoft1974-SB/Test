@@ -1,0 +1,2092 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Tracciamento Ore - Dashboard</title>
+
+<!-- Foglio di Stile Esterno 1: Google Fonts (Inter) -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+<link href="https://fonts.googleapis.com/css2?family=Roboto+Flex:wght@300..800&display=swap" rel="stylesheet">
+
+<!-- Foglio di Stile Esterno 2: FontAwesome per le Icone -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+<!-- Fogli di Stile dell'Applicazione -->
+<style>
+  /* ============ MATERIAL YOU TOKENS (light) ============ */
+  :root {
+    color-scheme: light dark;
+    --m-primary:#4152b0; --m-on-primary:#fff; --m-primary-c:#dfe1ff; --m-on-primary-c:#00105c;
+    --m-secondary-c:#dfe1f6; --m-on-secondary-c:#171a2c;
+    --m-tertiary:#a8364b; --m-tertiary-c:#ffd9de; --m-on-tertiary-c:#3f0016;
+    --m-surface:#fbf8ff; --m-sc-low:#f4f3fb; --m-sc:#eeedf6; --m-sc-high:#e8e7f0;
+    --m-on-surface:#1b1b21; --m-on-variant:#46464f; --m-outline:#777680; --m-outline-v:#c7c5d0;
+    --m-glass:rgba(251,248,255,.72);
+    --ok-bg:#d6f2df; --ok:#0b5a30; --err-bg:#ffdad6; --err:#93000a;
+    --e1:0 1px 2px rgb(40 40 90/.10),0 1px 3px 1px rgb(40 40 90/.06);
+    --e2:0 1px 2px rgb(40 40 90/.12),0 2px 6px 2px rgb(40 40 90/.08);
+    --e3:0 4px 8px 3px rgb(40 40 90/.08),0 1px 3px rgb(40 40 90/.14),0 18px 40px -12px rgb(65 82 176/.28);
+    --ease:cubic-bezier(.2,0,0,1);
+    --r-xl:28px; --r-lg:20px; --r-md:16px;
+    /* alias di compatibilità (usati da markup/JS esistente) */
+    --bg:var(--m-surface); --surface:var(--m-sc-low); --ink:var(--m-on-surface); --muted:var(--m-on-variant); --line:var(--m-outline-v);
+    --brand:var(--m-tertiary); --action:var(--m-primary); --action-hover:var(--m-primary); --focus:var(--m-primary); --focus-soft:var(--m-primary-c);
+    --r-card:var(--r-xl); --r-ctl:var(--r-md); --shadow:var(--e1); --shadow-lg:var(--e3);
+    --primary:var(--m-primary); --primary-hover:var(--m-primary); --primary-light:var(--m-primary-c);
+    --accent:var(--m-tertiary); --accent-light:var(--m-tertiary-c); --border-color:var(--m-outline-v);
+    --text-main:var(--m-on-surface); --text-muted:var(--m-on-variant);
+    --status-ok-bg:var(--ok-bg); --status-ok-text:var(--ok); --status-err-bg:var(--err-bg); --status-err-text:var(--err);
+  }
+  @media (prefers-color-scheme:dark) {
+    :root {
+      --m-primary:#b9c3ff; --m-on-primary:#0b1f84; --m-primary-c:#2a3b9c; --m-on-primary-c:#dfe1ff;
+      --m-secondary-c:#41465c; --m-on-secondary-c:#dfe1f6;
+      --m-tertiary:#ffb2bd; --m-tertiary-c:#7d2a3c; --m-on-tertiary-c:#ffd9de;
+      --m-surface:#121318; --m-sc-low:#1b1b21; --m-sc:#1f1f25; --m-sc-high:#292a2f;
+      --m-on-surface:#e4e1e9; --m-on-variant:#c7c5d0; --m-outline:#91909a; --m-outline-v:#46464f;
+      --m-glass:rgba(18,19,24,.7);
+      --ok-bg:#12402a; --ok:#9be3b3; --err-bg:#5c1a15; --err:#ffb4ab;
+      --e1:0 1px 2px rgb(0 0 0/.4),0 1px 3px 1px rgb(0 0 0/.25);
+      --e2:0 1px 2px rgb(0 0 0/.45),0 2px 6px 2px rgb(0 0 0/.3);
+      --e3:0 4px 8px 3px rgb(0 0 0/.3),0 1px 3px rgb(0 0 0/.5),0 18px 40px -12px rgb(0 0 0/.6);
+    }
+  }
+
+  * { box-sizing:border-box; }
+  html,body { margin:0; padding:0; }
+  body { background:var(--m-surface); color:var(--m-on-surface); font-family:'Google Sans Flex','Google Sans','Roboto Flex','Manrope',system-ui,sans-serif; font-size:15px; line-height:1.55; min-height:100vh; display:flex; flex-direction:column; -webkit-font-smoothing:antialiased; }
+  body::before { content:""; position:fixed; inset:0; z-index:-1; pointer-events:none;
+    background:radial-gradient(60vmax 42vmax at 92% -10%,color-mix(in srgb,var(--m-primary) 17%,transparent),transparent 62%),
+               radial-gradient(48vmax 40vmax at -8% 35%,color-mix(in srgb,var(--m-tertiary) 11%,transparent),transparent 62%); }
+  :focus-visible { outline:3px solid var(--m-primary); outline-offset:2px; }
+
+  /* ============ HEADER (glass app bar) ============ */
+  .app-header { position:sticky; top:0; z-index:50; padding:max(10px,env(safe-area-inset-top)) 16px 0; }
+  .header-container { position:relative; isolation:isolate; max-width:1208px; margin:0 auto; padding:8px 12px 8px 18px; display:grid; grid-template-columns:auto 1fr auto; align-items:center; gap:20px; border:1px solid color-mix(in srgb,var(--m-outline-v) 70%,transparent); border-radius:var(--r-xl); box-shadow:var(--e2); }
+  .header-container::before { content:""; position:absolute; inset:0; z-index:-1; border-radius:inherit; background:var(--m-glass); -webkit-backdrop-filter:blur(24px) saturate(1.6); backdrop-filter:blur(24px) saturate(1.6); }
+  .brand { display:flex; align-items:center; }
+  .brand h1 { margin:0; font-size:1.2rem; font-weight:600; letter-spacing:-.005em; display:flex; align-items:center; gap:12px; }
+  .brand h1::before { content:"\f017"; font-family:"Font Awesome 6 Free"; font-weight:900; font-size:1rem; width:40px; height:40px; display:grid; place-items:center; border-radius:14px; background:var(--m-primary); color:var(--m-on-primary); }
+  .header-right { display:flex; align-items:center; gap:14px; }
+  .header-logo { height:48px; width:auto; display:block; background:#fff; padding:6px 12px; border-radius:16px; }
+  .count-pill { background:var(--m-secondary-c); color:var(--m-on-secondary-c); border-radius:999px; padding:8px 16px; font-size:.84rem; font-weight:600; white-space:nowrap; }
+
+  nav.tabs { justify-self:center; display:flex; gap:4px; background:var(--m-sc-high); padding:4px; border-radius:999px; }
+  nav.tabs button { position:relative; overflow:hidden; border:0; background:transparent; color:var(--m-on-variant); font:inherit; font-weight:600; font-size:.92rem; padding:10px 22px; border-radius:999px; cursor:pointer; display:flex; align-items:center; gap:8px; transition:all .3s var(--ease); }
+  nav.tabs button:hover { color:var(--m-on-surface); background:color-mix(in srgb,var(--m-on-surface) 8%,transparent); }
+  nav.tabs button.active { background:var(--m-primary-c); color:var(--m-on-primary-c); box-shadow:var(--e1); }
+
+  /* ============ LAYOUT ============ */
+  main { max-width:1240px; margin:0 auto; padding:24px 16px 56px; width:100%; flex:1; }
+  .col { min-width:0; }
+  .tab-panel { display:none; }
+  .tab-panel.active { display:block; animation:panelIn .4s var(--ease); }
+  #tab-inserimento.active { display:grid; grid-template-columns:340px 1fr; gap:20px; align-items:start; }
+  .side { position:sticky; top:104px; }
+  @keyframes panelIn { from { opacity:0; transform:translateY(10px); } to { opacity:1; transform:none; } }
+
+  /* ============ CARDS / WIDGETS ============ */
+  .panel, .filter-panel, .chart-card, .stat-card { background:color-mix(in srgb,var(--m-sc-low) 80%,transparent); -webkit-backdrop-filter:blur(18px); backdrop-filter:blur(18px); border:1px solid color-mix(in srgb,var(--m-outline-v) 60%,transparent); border-radius:var(--r-xl); box-shadow:var(--e1); transition:box-shadow .3s var(--ease),transform .3s var(--ease); }
+  .panel { padding:24px; margin-bottom:20px; }
+  .panel h2, .chart-card h3, .filter-title { margin:0 0 4px; font-size:1.1rem; font-weight:600; letter-spacing:-.005em; display:flex; align-items:center; gap:12px; }
+  .panel h2 i, .chart-card h3 i, .filter-title i { flex:none; width:36px; height:36px; display:grid; place-items:center; border-radius:12px; background:var(--m-primary-c); color:var(--m-on-primary-c); font-size:.85rem; }
+  .panel .hint { margin:2px 0 20px; color:var(--m-on-variant); font-size:.88rem; }
+
+  .file-item { border-radius:var(--r-lg); padding:14px 16px; margin-bottom:12px; background:var(--m-sc); }
+  .file-item small { display:block; color:var(--m-on-variant); font-size:.78rem; font-weight:600; }
+  .file-item .name { display:block; font-weight:600; word-break:break-all; margin:2px 0 12px; }
+  .file-item .btn { width:100%; margin-top:8px; }
+  details.fields-details { margin-top:14px; font-size:.88rem; }
+  details.fields-details summary { cursor:pointer; font-weight:600; color:var(--m-primary); padding:6px 0; }
+
+
+  /* ===== Finestre di dialogo (output / WhatsApp) ===== */
+  dialog.m-dialog { border:0; border-radius:var(--r-xl); padding:24px; width:min(460px,92vw); background:var(--m-surface); color:var(--m-on-surface); box-shadow:var(--e3); }
+  dialog.m-dialog::backdrop { background:rgba(0,0,0,.5); }
+  .m-dialog h3 { margin:0 0 6px; font-size:1.15rem; display:flex; align-items:center; gap:10px; }
+  .m-dialog p { margin:6px 0; font-size:.9rem; color:var(--m-on-variant); }
+  .m-dialog .dlg-actions { display:flex; flex-direction:column; gap:10px; margin-top:18px; }
+  .m-dialog .dlg-file { background:var(--m-sc); border-radius:var(--r-md); padding:12px 16px; margin-top:12px; word-break:break-all; }
+  .m-dialog .dlg-file strong { display:block; }
+  .btn-wa { background:#25D366; color:#06351a; box-shadow:var(--e1); }
+  .btn[disabled] { opacity:.5; pointer-events:none; }
+  .wa-only { display:none !important; }
+  html.is-mobile .wa-only { display:inline-flex !important; }
+
+  /* ============ FORM ============ */
+  .row { display:flex; gap:12px; flex-wrap:wrap; align-items:center; }
+  label.field-label { display:block; font-size:.8rem; font-weight:600; color:var(--m-on-variant); margin:0 0 6px 4px; }
+  input[type=text],input[type=number],input[type=date],textarea,select { width:100%; padding:10px 16px; border:1px solid transparent; border-radius:var(--r-md); font:inherit; font-size:.94rem; background:var(--m-sc); color:var(--m-on-surface); transition:all .3s var(--ease); min-height:48px; box-shadow:inset 0 -1px 0 var(--m-outline); }
+  input:hover,select:hover,textarea:hover { background:var(--m-sc-high); }
+  input:focus,textarea:focus,select:focus { outline:none; background:var(--m-sc); border-color:var(--m-primary); box-shadow:0 0 0 3px color-mix(in srgb,var(--m-primary) 25%,transparent); }
+  input[type=file] { padding:7px 10px; }
+  input[type=file]::file-selector-button { border:0; background:var(--m-primary-c); color:var(--m-on-primary-c); font:inherit; font-weight:600; padding:8px 16px; border-radius:999px; margin-right:12px; cursor:pointer; }
+  textarea { resize:vertical; min-height:76px; }
+  .field-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(210px,1fr)); gap:18px 16px; margin-bottom:18px; }
+  .field-grid.three { grid-template-columns:1fr 1fr 2fr; }
+  .stepper { display:flex; gap:8px; }
+  .stepper input { text-align:center; font-weight:700; font-variant-numeric:tabular-nums; }
+  .chips { display:flex; gap:8px; flex-wrap:wrap; margin-top:10px; }
+  .date-row { display:flex; gap:8px; }
+  .check { display:flex; align-items:center; gap:10px; font-size:.88rem; color:var(--m-on-variant); cursor:pointer; }
+  .check input { width:20px; height:20px; min-height:0; padding:0; accent-color:var(--m-primary); box-shadow:none; }
+  .form-actions { display:flex; justify-content:space-between; align-items:center; gap:16px; flex-wrap:wrap; }
+  .field-error { color:var(--err); font-size:.88rem; font-weight:600; margin-top:12px; }
+
+  /* ============ BUTTONS (state layer + ripple) ============ */
+  .btn, .chip, .stepper button { position:relative; overflow:hidden; isolation:isolate; font:inherit; cursor:pointer; transition:all .3s var(--ease); }
+  .btn::before, .chip::before, .stepper button::before { content:""; position:absolute; inset:0; z-index:-1; background:currentColor; opacity:0; transition:opacity .2s var(--ease); }
+  .btn:hover::before, .chip:hover::before, .stepper button:hover::before { opacity:.08; }
+  .btn:active::before, .chip:active::before, .stepper button:active::before { opacity:.14; }
+  .btn:active, .chip:active, .stepper button:active { transform:scale(.96); }
+  .ripple { position:absolute; border-radius:50%; background:currentColor; opacity:.2; transform:scale(0); animation:ripple .6s var(--ease) forwards; pointer-events:none; }
+  @keyframes ripple { to { transform:scale(1); opacity:0; } }
+
+  .btn { display:inline-flex; align-items:center; justify-content:center; gap:10px; padding:10px 24px; min-height:48px; border-radius:999px; border:1px solid transparent; font-size:.92rem; font-weight:600; letter-spacing:.01em; }
+  .btn-primary, .btn-rust { background:var(--m-primary); color:var(--m-on-primary); box-shadow:var(--e1); }
+  .btn-primary:hover, .btn-rust:hover { box-shadow:var(--e2); transform:translateY(-1px); }
+  .btn-primary:active, .btn-rust:active { transform:scale(.96); }
+  .btn-outline { background:transparent; color:var(--m-primary); border-color:var(--m-outline); }
+  .btn-outline:hover { border-color:var(--m-primary); }
+  .btn-icon-danger { min-height:38px; width:38px; padding:0; background:var(--err-bg); color:var(--err); }
+  .btn-icon-danger:hover { box-shadow:var(--e1); }
+
+  .stepper button { width:48px; min-width:48px; min-height:48px; border:0; border-radius:50%; background:var(--m-secondary-c); color:var(--m-on-secondary-c); font-size:1.2rem; font-weight:600; }
+  .chip { min-height:34px; padding:0 16px; border:1px solid var(--m-outline); border-radius:999px; background:transparent; color:var(--m-on-variant); font-size:.84rem; font-weight:600; }
+  .chip:hover { border-color:var(--m-primary); color:var(--m-primary); }
+  .date-row .chip { min-height:48px; padding:0 18px; background:var(--m-secondary-c); color:var(--m-on-secondary-c); border-color:transparent; }
+  .field-tag { display:inline-flex; align-items:center; gap:6px; background:var(--m-secondary-c); color:var(--m-on-secondary-c); padding:6px 14px; border-radius:999px; font-size:.8rem; font-weight:600; margin:6px 6px 0 0; }
+
+  /* ============ TABLE ============ */
+  .table-wrap { max-height:400px; overflow:auto; border:1px solid color-mix(in srgb,var(--m-outline-v) 70%,transparent); border-radius:var(--r-lg); background:var(--m-sc-low); }
+  table { width:100%; border-collapse:collapse; font-size:.88rem; text-align:left; }
+  th,td { padding:12px 16px; border-bottom:1px solid color-mix(in srgb,var(--m-outline-v) 60%,transparent); vertical-align:middle; }
+  th { background:var(--m-sc-high); color:var(--m-on-variant); font-weight:600; font-size:.8rem; position:sticky; top:0; z-index:5; white-space:nowrap; }
+  td strong { color:var(--m-primary); font-variant-numeric:tabular-nums; }
+  tbody tr { transition:background .2s var(--ease); }
+  tbody tr:hover { background:color-mix(in srgb,var(--m-primary) 7%,transparent); }
+  tbody tr:last-child td { border-bottom:0; }
+  .queue-footer { display:flex; justify-content:space-between; align-items:center; gap:14px; flex-wrap:wrap; margin-top:18px; }
+  .queue-total { font-weight:600; color:var(--m-on-variant); }
+  .queue-total span { font-size:1.9rem; font-weight:700; color:var(--m-primary); font-variant-numeric:tabular-nums; letter-spacing:-.02em; }
+
+  /* ============ STATUS / EMPTY ============ */
+  .status-msg { font-size:.88rem; padding:12px 16px; border-radius:var(--r-md); margin-top:14px; display:flex; align-items:flex-start; gap:10px; font-weight:500; animation:pop .35s var(--ease); }
+  @keyframes pop { from { opacity:0; transform:scale(.96) translateY(4px); } to { opacity:1; transform:none; } }
+  .status-ok { background:var(--ok-bg); color:var(--ok); }
+  .status-err { background:var(--err-bg); color:var(--err); }
+  .empty-state { text-align:center; padding:56px 20px; color:var(--m-on-variant); border-style:dashed; }
+  .empty-state .btn { margin-top:4px; }
+  .empty-icon { display:grid; place-items:center; width:88px; height:88px; margin:0 auto 18px; border-radius:32px; background:var(--m-primary-c); color:var(--m-on-primary-c); font-size:2rem; }
+
+  /* ============ STATISTICHE ============ */
+  .stat-cards { display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:16px; margin-bottom:20px; }
+  .stat-card { padding:22px 24px; display:flex; align-items:center; gap:18px; border-color:transparent; }
+  .stat-card:nth-child(1) { background:var(--m-primary-c); color:var(--m-on-primary-c); }
+  .stat-card:nth-child(2) { background:var(--m-tertiary-c); color:var(--m-on-tertiary-c); }
+  .stat-card:hover { box-shadow:var(--e3); transform:translateY(-2px); }
+  .stat-card .icon-box { width:56px; height:56px; border-radius:20px; background:color-mix(in srgb,currentColor 14%,transparent); color:inherit; display:grid; place-items:center; font-size:1.2rem; flex-shrink:0; }
+  .stat-card .num { font-size:2.2rem; font-weight:700; line-height:1.1; font-variant-numeric:tabular-nums; letter-spacing:-.02em; }
+  .stat-card .label { font-size:.86rem; color:inherit; opacity:.78; font-weight:600; }
+  .filter-panel { padding:20px 24px; margin-bottom:20px; }
+  .filter-title { margin-bottom:16px; }
+  .filter-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(180px,1fr)); gap:16px; }
+  .charts-stack { display:grid; grid-template-columns:1fr 1fr; gap:20px; }
+  .chart-card { padding:24px; min-width:0; }
+  .chart-card:first-child { grid-column:1/-1; }
+  .chart-card:hover { box-shadow:var(--e2); }
+  .chart-card h3 { margin-bottom:16px; }
+  .chart-container { position:relative; height:320px; width:100%; }
+
+  footer { text-align:center; color:var(--m-on-variant); font-size:.82rem; padding:24px 16px; }
+
+  /* ============ SHAREPOINT / GRAPH ============ */
+  #dlg-sp { width:min(760px,94vw); }
+  .sp-toolbar { display:flex; gap:8px; align-items:center; margin:12px 0; flex-wrap:wrap; }
+  .sp-toolbar input[type=text] { flex:1; min-width:180px; min-height:40px; padding:8px 14px; }
+  .sp-bc { display:flex; gap:4px; flex-wrap:wrap; font-size:.84rem; margin:0 0 8px; color:var(--m-on-variant); min-height:20px; }
+  .sp-bc a { color:var(--m-primary); cursor:pointer; text-decoration:underline; }
+  .sp-list { max-height:340px; overflow:auto; border:1px solid var(--m-outline-v); border-radius:var(--r-md); background:var(--m-sc-low); }
+  .sp-item { display:flex; align-items:center; gap:12px; padding:10px 14px; cursor:pointer;
+             border-bottom:1px solid color-mix(in srgb,var(--m-outline-v) 50%,transparent); transition:background .2s var(--ease); }
+  .sp-item:last-child { border-bottom:0; }
+  .sp-item:hover { background:color-mix(in srgb,var(--m-primary) 8%,transparent); }
+  .sp-item.sel { background:var(--m-primary-c); color:var(--m-on-primary-c); }
+  .sp-item > i { width:22px; text-align:center; color:var(--m-primary); flex:none; }
+  .sp-item.sel > i { color:var(--m-on-primary-c); }
+  .sp-item .sp-name { flex:1; word-break:break-all; font-weight:500; }
+  .sp-item .sp-meta { font-size:.78rem; color:var(--m-on-variant); flex:none; max-width:40%; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .sp-item.sel .sp-meta { color:inherit; opacity:.75; }
+  .sp-actions { display:flex; justify-content:flex-end; gap:10px; margin-top:14px; }
+  .sp-setup { display:flex; flex-direction:column; gap:12px; }
+  .sp-setup input { min-height:44px; }
+
+  /* ============ RESPONSIVE (mobile-first nav bar in basso) ============ */
+  @media (max-width:960px) {
+    #tab-inserimento.active { grid-template-columns:1fr; }
+    .side { position:static; }
+    .header-container { grid-template-columns:1fr auto; gap:8px; padding:8px 10px 8px 14px; }
+    .header-logo { height:40px; }
+    nav.tabs { position:fixed; left:12px; right:12px; bottom:max(12px,env(safe-area-inset-bottom)); z-index:60; justify-self:auto; padding:8px; border-radius:28px; background:var(--m-glass); -webkit-backdrop-filter:blur(24px) saturate(1.6); backdrop-filter:blur(24px) saturate(1.6); border:1px solid color-mix(in srgb,var(--m-outline-v) 70%,transparent); box-shadow:var(--e3); }
+    nav.tabs button { flex:1; flex-direction:column; gap:4px; font-size:.76rem; padding:6px 4px; border-radius:20px; }
+    nav.tabs button:hover, nav.tabs button.active { background:transparent; box-shadow:none; }
+    nav.tabs button i { padding:5px 22px; border-radius:999px; font-size:1rem; transition:all .3s var(--ease); }
+    nav.tabs button.active i { background:var(--m-primary-c); color:var(--m-on-primary-c); }
+    nav.tabs button.active { color:var(--m-on-surface); }
+    footer { padding-bottom:calc(104px + env(safe-area-inset-bottom)); }
+  }
+  @media (max-width:900px) { .charts-stack { grid-template-columns:1fr; } }
+  @media (max-width:700px) {
+    .field-grid.three { grid-template-columns:1fr; }
+    .panel, .chart-card, .filter-panel { padding:20px 18px; border-radius:24px; }
+    .brand h1 { font-size:1.05rem; }
+    .stat-card .num { font-size:1.9rem; }
+    .form-actions .btn, .queue-footer .row, .queue-footer .row .btn { width:100%; }
+  }
+  #tab-importa .panel { max-width:760px; }
+  #import-result { margin-top:20px; max-width:1000px; }
+  #import-result:empty { display:none; }
+  #import-result .stat-card:nth-child(2) { background:var(--ok-bg); color:var(--ok); }
+  @media (prefers-reduced-motion:reduce) { * { transition:none !important; animation:none !important; } }
+</style>
+
+<!-- Librerie Javascript Esterne -->
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<!-- Microsoft Authentication Library per Office 365 / SharePoint -->
+<script src="https://alcdn.msauth.net/browser/3.10.0/js/msal-browser.min.js"></script>
+</head>
+<body>
+
+<header class="app-header">
+  <div class="header-container">
+    <div class="brand">
+      <h1>Tracciamento ore</h1>
+    </div>
+    <nav class="tabs" role="tablist" aria-label="Sezioni">
+      <button class="tab-btn active" role="tab" aria-selected="true" data-tab="tab-inserimento"><i class="fa-solid fa-pen-to-square"></i> Inserimento</button>
+      <button class="tab-btn" role="tab" aria-selected="false" data-tab="tab-statistiche"><i class="fa-solid fa-chart-pie"></i> Statistiche</button>
+      <button class="tab-btn" role="tab" aria-selected="false" data-tab="tab-importa"><i class="fa-solid fa-file-import"></i> Importa</button>
+    </nav>
+    <div class="header-right">
+      <span id="record-count-header" class="count-pill"><i class="fa-solid fa-list-check"></i> 0 in coda</span>
+      <img class="header-logo" src="./mitsubishi_0.png" alt="Mitsubishi Electric" onerror="this.style.display='none'">
+    </div>
+  </div>
+</header>
+
+<main>
+
+  <!-- TAB 1: INSERIMENTO -->
+  <section id="tab-inserimento" class="tab-panel active">
+
+    <div class="side">
+    <div class="panel">
+      <h2><i class="fa-solid fa-gear"></i> File di lavoro</h2>
+      <p class="hint">Carica le liste delle opzioni e scegli il file Excel in cui salvare le ore.</p>
+
+      <div class="file-item">
+        <small>Liste opzioni</small>
+        <span class="name" id="label-template-name">Non configurato</span>
+        <button class="btn btn-primary" id="btn-load-cfg-excel"><i class="fa-solid fa-globe"></i> Carica da CFG/Liste.xlsx</button>
+        <button class="btn btn-outline" id="btn-load-root-excel"><i class="fa-solid fa-file-excel"></i> Scegli Liste.xlsx locale</button>
+        <button class="btn btn-outline" id="btn-sp-load-liste"><i class="fa-brands fa-microsoft"></i> Carica da SharePoint</button>
+        <input type="file" id="input-template-excel"
+               accept=".xlsx,.xls,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.ms-excel"
+               style="position:absolute; left:-9999px; width:1px; height:1px; opacity:0;"
+               tabindex="-1" aria-hidden="true">
+      </div>
+      <div class="file-item">
+        <small>File di destinazione</small>
+        <span class="name" id="label-dest-name">Non configurato</span>
+        <button class="btn btn-outline" id="btn-load-local-dest"><i class="fa-solid fa-file-excel"></i> Scegli o crea file di output</button>
+        <button class="btn btn-outline" id="btn-reconnect-dest" style="display:none;"><i class="fa-solid fa-plug"></i> Riconnetti file salvato</button>
+        <button class="btn btn-outline" id="btn-sp-open-output"><i class="fa-brands fa-microsoft"></i> Apri/Salva su SharePoint</button>
+        <input type="file" id="input-local-dest-fallback" style="position:absolute; left:-9999px; width:1px; height:1px; opacity:0;" tabindex="-1" aria-hidden="true" accept=".xlsx,.xls,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.ms-excel">
+      </div>
+
+      <div id="file-config-status" role="status" aria-live="polite"></div>
+      <details class="fields-details" id="fields-details" style="display:none;"><summary>Campi rilevati</summary><div id="fields-preview"></div></details>
+    </div>
+    </div>
+    <div class="col">
+
+    <!-- FORM INSERIMENTO RECORD -->
+    <div class="panel" id="form-panel" style="display:none;">
+      <h2><i class="fa-solid fa-plus"></i> Nuovo record</h2>
+      <p class="hint">Compila i campi e premi Invio per aggiungere il record alla coda.</p>
+      <div id="dynamic-fields" class="field-grid"></div>
+      <div class="field-grid three">
+        <div>
+          <label class="field-label" for="field-data">Data</label>
+          <div class="date-row"><input type="date" id="field-data"><button type="button" class="chip" id="btn-today">Oggi</button></div>
+        </div>
+        <div>
+          <label class="field-label" for="field-ore">Ore</label>
+          <div class="stepper">
+            <button type="button" id="ore-minus" aria-label="Diminuisci di un quarto d'ora">&minus;</button>
+            <input type="number" id="field-ore" step="0.25" min="0" inputmode="decimal" placeholder="0">
+            <button type="button" id="ore-plus" aria-label="Aumenta di un quarto d'ora">+</button>
+          </div>
+          <div class="chips" aria-label="Valori rapidi">
+            <button type="button" class="chip" data-ore="0.5">0,5</button><button type="button" class="chip" data-ore="1">1</button><button type="button" class="chip" data-ore="2">2</button><button type="button" class="chip" data-ore="4">4</button><button type="button" class="chip" data-ore="8">8</button>
+          </div>
+        </div>
+        <div>
+          <label class="field-label" for="field-note">Note</label>
+          <textarea id="field-note" placeholder="Note facoltative (Ctrl+Invio per aggiungere)"></textarea>
+        </div>
+      </div>
+      <div class="form-actions">
+        <label class="check"><input type="checkbox" id="keep-selections"> Mantieni le selezioni dopo l'aggiunta</label>
+        <button class="btn btn-primary" id="btn-add-record"><i class="fa-solid fa-plus"></i> Aggiungi alla coda</button>
+      </div>
+      <div id="form-error" class="field-error" role="alert"></div>
+    </div>
+
+    <!-- TABELLA RECORD -->
+    <div class="panel" id="records-panel" style="display:none;">
+      <h2><i class="fa-solid fa-list"></i> Coda di salvataggio</h2>
+      <p class="hint">Elenco dei dati pronti per l'inserimento nel file Excel.</p>
+      <div class="table-wrap">
+        <table id="records-table">
+          <thead><tr id="records-thead-row"></tr></thead>
+          <tbody id="records-tbody"></tbody>
+        </table>
+      </div>
+      <div class="queue-footer">
+        <div class="queue-total"><span id="queue-total">0</span> ore totali</div>
+        <div class="row">
+          <button class="btn btn-outline" id="btn-clear-queue"><i class="fa-solid fa-eraser"></i> Svuota coda</button>
+          <button class="btn btn-rust" id="btn-export-excel"><i class="fa-solid fa-floppy-disk"></i> Salva su file Excel</button>
+        </div>
+      </div>
+      <div id="export-status"></div>
+    </div>
+
+    <div class="panel empty-state" id="no-fields-msg">
+      <i class="fa-solid fa-folder-open empty-icon"></i>
+      <p>Per iniziare, carica le liste delle opzioni.</p>
+      <div class="row" style="justify-content:center;">
+        <button class="btn btn-primary" onclick="document.getElementById('btn-load-cfg-excel').click()"><i class="fa-solid fa-globe"></i> Carica da CFG/Liste.xlsx</button>
+        <button class="btn btn-outline" onclick="document.getElementById('btn-load-root-excel').click()"><i class="fa-solid fa-file-excel"></i> Scegli Liste.xlsx locale</button>
+      </div>
+    </div>
+
+      </div>
+  </section>
+
+  <!-- TAB 2: STATISTICHE -->
+  <section id="tab-statistiche" class="tab-panel">
+    <div class="panel">
+      <h2><i class="fa-solid fa-database"></i> Origine Dati Statistiche</h2>
+      <p class="hint">Analizza i dati dal file memorizzato o caricane uno nuovo.</p>
+      <div class="row">
+        <button class="btn btn-primary" id="btn-load-saved-dest"><i class="fa-solid fa-arrows-rotate"></i> Carica da File Output Memorizzato</button>
+        <button class="btn btn-outline" id="btn-sp-load-stats"><i class="fa-brands fa-microsoft"></i> Apri da SharePoint</button>
+        <div style="flex:1; min-width:220px;">
+          <label class="field-label" for="stats-file">Scegli un altro file Excel (Locale)</label>
+          <input type="file" id="stats-file" accept=".xlsx,.xls,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.ms-excel">
+        </div>
+      </div>
+      <div id="stats-status"></div>
+    </div>
+
+    <div id="stats-content" style="display:none;">
+      
+      <!-- PANNELLO FILTRI MESE E ANNO -->
+      <div class="filter-panel">
+        <h3 class="filter-title"><i class="fa-solid fa-filter"></i> Filtra per Periodo</h3>
+        <div class="filter-grid">
+          <div>
+            <label class="field-label" for="filter-mese">Mese</label>
+            <select id="filter-mese">
+              <option value="ALL">Tutti i Mesi</option>
+              <option value="1">Gennaio</option>
+              <option value="2">Febbraio</option>
+              <option value="3">Marzo</option>
+              <option value="4">Aprile</option>
+              <option value="5">Maggio</option>
+              <option value="6">Giugno</option>
+              <option value="7">Luglio</option>
+              <option value="8">Agosto</option>
+              <option value="9">Settembre</option>
+              <option value="10">Ottobre</option>
+              <option value="11">Novembre</option>
+              <option value="12">Dicembre</option>
+            </select>
+          </div>
+          <div>
+            <label class="field-label" for="filter-anno">Anno</label>
+            <select id="filter-anno">
+              <option value="ALL">Tutti gli Anni</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <div class="stat-cards" id="stat-summary-cards"></div>
+
+      <!-- GRAFICI IMPILATI A LARGHEZZA INTERA -->
+      <div class="charts-stack">
+        <div class="chart-card">
+          <h3><i class="fa-solid fa-people-group"></i> Ore Lavorate per Cliente e Tecnico</h3>
+          <div class="chart-container"><canvas id="chart-cliente-tecnico"></canvas></div>
+        </div>
+        <div class="chart-card">
+          <h3><i class="fa-solid fa-user"></i> Ore Totali per Nome / Risorsa</h3>
+          <div class="chart-container"><canvas id="chart-nome"></canvas></div>
+        </div>
+        <div class="chart-card">
+          <h3><i class="fa-solid fa-building"></i> Ore Totali per Cliente</h3>
+          <div class="chart-container"><canvas id="chart-cliente"></canvas></div>
+        </div>
+        <div class="chart-card">
+          <h3><i class="fa-solid fa-layer-group"></i> Ore Totali per Area</h3>
+          <div class="chart-container"><canvas id="chart-area"></canvas></div>
+        </div>
+        <div class="chart-card">
+          <h3><i class="fa-solid fa-briefcase"></i> Ore Totali per Servizio</h3>
+          <div class="chart-container"><canvas id="chart-servizio"></canvas></div>
+        </div>
+        <div class="chart-card">
+          <h3><i class="fa-solid fa-chart-pie"></i> Ripartizione Ore per Modalità</h3>
+          <div class="chart-container"><canvas id="chart-modalita"></canvas></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel empty-state" id="no-stats-msg">
+      <i class="fa-solid fa-chart-column empty-icon"></i>
+      <p>Scegli una fonte dati qui sopra per generare i grafici.</p>
+    </div>
+  </section>
+
+
+  <!-- TAB 3: IMPORTA FILE ESTERNO -->
+  <section id="tab-importa" class="tab-panel">
+    <div class="panel">
+      <h2><i class="fa-solid fa-file-import"></i> Importa file esterno</h2>
+      <p class="hint">Scegli un file Excel diverso da quello di output. I record non ancora presenti vengono aggiunti al file di output e tutti i record vengono riordinati per data.</p>
+      <div class="file-item">
+        <small>File di destinazione</small>
+        <span class="name" id="import-dest-name">Non configurato</span>
+      </div>
+      <div class="row">
+        <button class="btn btn-primary" id="btn-import-external"><i class="fa-solid fa-file-arrow-up"></i> Scegli file Excel esterno</button>
+        <button class="btn btn-wa wa-only" id="btn-open-wa"><i class="fa-brands fa-whatsapp"></i> Invia via WhatsApp</button>
+      </div>
+      <input type="file" id="input-import-external" style="position:absolute; left:-9999px; width:1px; height:1px; opacity:0;" tabindex="-1" aria-hidden="true" accept=".xlsx,.xls,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.ms-excel">
+      <div id="import-status" role="status" aria-live="polite"></div>
+      <div id="import-deliver" style="display:none; margin-top:12px;"><button class="btn btn-primary" id="btn-import-deliver"><i class="fa-solid fa-share-from-square"></i> Salva / condividi file aggiornato</button></div>
+    </div>
+    <div class="stat-cards" id="import-result"></div>
+    <div class="panel" id="backup-panel">
+      <h2><i class="fa-solid fa-clock-rotate-left"></i> Copie di sicurezza</h2>
+      <p class="hint">Prima di ogni sovrascrittura del file di output ne viene conservata una copia in questo browser (ultime 10). Puoi ripristinarla o scaricarla.</p>
+      <div id="backup-list"></div>
+      <div id="backup-status" role="status" aria-live="polite"></div>
+    </div>
+  </section>
+
+</main>
+
+
+<dialog class="m-dialog" id="dlg-output">
+  <h3><i class="fa-solid fa-folder-open"></i> File di output</h3>
+  <p id="dlg-output-hint"></p>
+  <div class="dlg-actions">
+    <button class="btn btn-primary" id="out-open"><i class="fa-solid fa-folder-open"></i> Apri file esistente</button>
+    <button class="btn btn-outline" id="out-new"><i class="fa-solid fa-file-circle-plus"></i> Crea nuovo file</button>
+    <button class="btn btn-outline" id="out-cancel">Annulla</button>
+  </div>
+</dialog>
+
+<dialog class="m-dialog" id="dlg-wa">
+  <h3><i class="fa-brands fa-whatsapp" style="color:#25D366"></i> Invia via WhatsApp</h3>
+  <div class="dlg-file" id="wa-file">Preparazione del file...</div>
+  <p id="wa-warn"></p>
+  <p>Si aprirà il foglio di condivisione del telefono: scegli <strong>WhatsApp</strong> e poi il contatto o il gruppo.</p>
+  <div class="dlg-actions">
+    <button class="btn btn-wa" id="wa-send" disabled><i class="fa-brands fa-whatsapp"></i> Invia con WhatsApp</button>
+    <button class="btn btn-outline" id="wa-save" disabled><i class="fa-solid fa-download"></i> Salva in una cartella</button>
+    <button class="btn btn-outline" id="wa-close">Chiudi</button>
+  </div>
+</dialog>
+
+<!-- ============ DIALOG SHAREPOINT / GRAPH ============ -->
+<dialog class="m-dialog" id="dlg-sp">
+  <h3><i class="fa-brands fa-microsoft" style="color:#0078d4"></i> SharePoint / OneDrive aziendale</h3>
+
+  <div id="sp-setup" class="sp-setup" style="display:none;">
+    <p class="hint">Per accedere serve un'<strong>App registrata in Azure AD</strong> con i permessi Microsoft Graph <code>User.Read</code>, <code>Files.ReadWrite</code>, <code>Sites.ReadWrite.All</code> e come redirect URI:</p>
+    <div class="dlg-file"><strong id="sp-redir"></strong></div>
+    <label class="field-label" for="sp-tenant">Tenant (dominio o GUID)</label>
+    <input type="text" id="sp-tenant" placeholder="es. contoso.onmicrosoft.com">
+    <label class="field-label" for="sp-client">Client ID (Application ID)</label>
+    <input type="text" id="sp-client" placeholder="00000000-0000-0000-0000-000000000000">
+    <div class="sp-actions">
+      <button class="btn btn-primary" id="sp-save-cfg"><i class="fa-solid fa-right-to-bracket"></i> Salva e accedi</button>
+    </div>
+  </div>
+
+  <div id="sp-browse" style="display:none;">
+    <div class="sp-toolbar">
+      <button class="chip" id="sp-up" title="Su"><i class="fa-solid fa-arrow-up"></i></button>
+      <button class="chip" id="sp-sites"><i class="fa-solid fa-globe"></i> Siti</button>
+      <button class="chip" id="sp-user"><i class="fa-solid fa-cloud"></i> OneDrive</button>
+      <input type="text" id="sp-search" placeholder="Cerca un file .xlsx...">
+    </div>
+    <div class="sp-bc" id="sp-bc"></div>
+    <div class="sp-list" id="sp-list"><div class="hint" style="padding:16px;">Caricamento...</div></div>
+    <div class="sp-actions">
+      <button class="btn btn-outline" id="sp-cancel">Annulla</button>
+      <button class="btn btn-primary" id="sp-pick" disabled><i class="fa-solid fa-check"></i> Seleziona</button>
+    </div>
+  </div>
+</dialog>
+
+<footer>
+  <i class="fa-solid fa-shield-halved"></i> Strumento locale &mdash; nessun dato viene inviato a server esterni. Funziona offline nel browser.
+</footer>
+
+<script>
+  let dynamicFields = [];
+  let fieldOptionsMap = {};
+  let collectedRecords = [];
+  let queueRestored = false, queuePersistOk = true, dbPromise = null;
+  const MAX_BACKUPS = 10;
+  
+  let destFileHandle = null;
+
+  Chart.defaults.font.family = "'Roboto Flex', 'Manrope', system-ui, sans-serif";
+  Chart.defaults.color = getComputedStyle(document.documentElement).getPropertyValue('--m-on-variant').trim() || '#5b6678';
+  Chart.defaults.plugins.legend.labels.usePointStyle = true;
+  Chart.defaults.plugins.tooltip.backgroundColor = '#12151c';
+  Chart.defaults.plugins.tooltip.padding = 10;
+  Chart.defaults.plugins.tooltip.cornerRadius = 8;
+  let chartInstances = {};
+  let rawStatsRecords = [];
+
+  function openDB() {
+    if (dbPromise) return dbPromise;
+    dbPromise = new Promise((resolve, reject) => {
+      const request = indexedDB.open('TracciamentoOreDB', 3);
+      request.onupgradeneeded = (e) => {
+        const db = e.target.result;
+        ['fileHandles', 'queue', 'backups'].forEach(n => {
+          if (!db.objectStoreNames.contains(n)) db.createObjectStore(n);
+        });
+      };
+      request.onsuccess = () => {
+        const db = request.result;
+        db.onversionchange = () => { db.close(); dbPromise = null; };
+        resolve(db);
+      };
+      request.onerror = () => { dbPromise = null; reject(request.error); };
+      request.onblocked = () => { dbPromise = null; reject(new Error('Database bloccato da un\'altra scheda aperta')); };
+    });
+    return dbPromise;
+  }
+
+  async function dbTx(store, mode, fn) {
+    const db = await openDB();
+    return new Promise((resolve, reject) => {
+      const tx = db.transaction(store, mode);
+      let result;
+      try { result = fn(tx.objectStore(store)); } catch (e) { reject(e); return; }
+      tx.oncomplete = () => resolve(result && 'result' in result ? result.result : undefined);
+      tx.onerror = () => reject(tx.error);
+      tx.onabort = () => reject(tx.error || new Error('Transazione annullata'));
+    });
+  }
+  const dbPut = (store, key, val) => dbTx(store, 'readwrite', st => { st.put(val, key); });
+  const dbDelete = (store, key) => dbTx(store, 'readwrite', st => { st.delete(key); });
+  const dbGet = (store, key) => dbTx(store, 'readonly', st => st.get(key));
+  const dbGetAll = (store) => dbTx(store, 'readonly', st => {
+    const out = { keys: st.getAllKeys(), vals: st.getAll() };
+    return { get result() { return out.keys.result.map((k, i) => ({ key: k, value: out.vals.result[i] })); } };
+  });
+
+  async function saveHandle(key, handle) { return dbPut('fileHandles', key, handle); }
+  async function getHandle(key) {
+    try { return await dbGet('fileHandles', key); } catch (e) { return null; }
+  }
+
+  /* ===== CODA PERSISTENTE ===== */
+  function persistQueue() {
+    if (!queueRestored) return;
+    const op = collectedRecords.length
+      ? dbPut('queue', 'records', JSON.parse(JSON.stringify(collectedRecords)))
+      : dbDelete('queue', 'records');
+    op.then(() => { queuePersistOk = true; }).catch(err => { queuePersistOk = false; console.warn('Coda non salvata:', err); });
+  }
+
+  async function restoreQueue() {
+    try {
+      const saved = await dbGet('queue', 'records');
+      if (Array.isArray(saved) && saved.length) {
+        if (!dynamicFields.length) {
+          const base = ['Data', 'Ore', 'Note'];
+          const extra = [];
+          saved.forEach(r => Object.keys(r).forEach(k => { if (!base.includes(k) && !extra.includes(k)) extra.push(k); }));
+          dynamicFields = extra;
+          updateTableHeaders();
+        }
+        collectedRecords = saved.concat(collectedRecords);
+        queueRestored = true;
+        renderRecordsTable();
+        showStatus('export-status', `Ripristinati ${saved.length} record non salvati dalla sessione precedente.`, 'ok');
+      }
+    } catch (err) {
+      queuePersistOk = false;
+      console.warn('Ripristino coda non riuscito:', err);
+    }
+    queueRestored = true;
+    persistQueue();
+  }
+
+  /* ===== COPIE DI SICUREZZA DEL FILE DI OUTPUT ===== */
+  async function backupOutput(name, buffer, reason) {
+    try {
+      if (!buffer || buffer.byteLength === 0) return false;
+      const copy = new Uint8Array(buffer).slice().buffer;
+      const ts = Date.now();
+      await dbPut('backups', 'bk:' + ts, { name, reason, savedAt: ts, size: copy.byteLength, buffer: copy });
+      const all = await dbGetAll('backups');
+      const keys = all.map(e => e.key).sort();
+      for (const k of keys.slice(0, Math.max(0, keys.length - MAX_BACKUPS))) await dbDelete('backups', k);
+      if (typeof refreshBackups === 'function') refreshBackups();
+      return true;
+    } catch (err) {
+      console.warn('Copia di sicurezza non riuscita:', err);
+      return false;
+    }
+  }
+
+  window.addEventListener('DOMContentLoaded', async () => {
+    const savedDest = await getHandle('destFile');
+    if (savedDest) {
+      document.getElementById('btn-reconnect-dest').style.display = 'inline-flex';
+      document.getElementById('label-dest-name').textContent = `${savedDest.name} (salvato in IndexedDB)`;
+    }
+
+    document.getElementById('filter-mese').addEventListener('change', updateFilteredStats);
+    document.getElementById('filter-anno').addEventListener('change', updateFilteredStats);
+  });
+
+  /* 1a. CARICAMENTO DI LISTE.XLSX DALLA CARTELLA CFG (relativa alla root) */
+  document.getElementById('btn-load-cfg-excel').addEventListener('click', async () => {
+    const S = 'file-config-status';
+    const paths = ['./CFG/Liste.xlsx', './cfg/Liste.xlsx'];
+    let loaded = false;
+    for (const path of paths) {
+      try {
+        showStatus(S, `Caricamento di ${path}...`, 'ok');
+        const resp = await fetch(path);
+        if (!resp.ok) continue;
+        const arrayBuffer = await resp.arrayBuffer();
+        loadTemplateDataFromBuffer(arrayBuffer, path.replace('./', ''));
+        loaded = true;
+        break;
+      } catch (e) { }
+    }
+    if (!loaded) {
+      showStatus(S, 'Impossibile trovare Liste.xlsx nella cartella CFG. Verifica che esista ./CFG/Liste.xlsx oppure scegli un file locale.', 'err');
+    }
+  });
+
+  /* 1b. CARICAMENTO DI LISTE.XLSX DA FILE LOCALE (selettore del sistema) */
+  (function () {
+    const btn   = document.getElementById('btn-load-root-excel');
+    const input = document.getElementById('input-template-excel');
+
+    btn.addEventListener('click', () => {
+      input.value = '';
+      input.click();
+    });
+
+    input.addEventListener('change', async () => {
+      const file = input.files && input.files[0];
+      if (!file) return;
+      try {
+        showStatus('file-config-status', `Lettura di "${file.name}" in corso...`, 'ok');
+        const arrayBuffer = await file.arrayBuffer();
+        loadTemplateDataFromBuffer(arrayBuffer, file.name);
+      } catch (err) {
+        showStatus('file-config-status', 'Errore nel caricamento del file: ' + err.message, 'err');
+      } finally {
+        input.value = '';
+      }
+    });
+  })();
+
+  /* 3. RICONNESSIONE AL FILE DI OUTPUT MEMORIZZATO */
+  document.getElementById('btn-reconnect-dest').addEventListener('click', async () => {
+    try {
+      const dHandle = await getHandle('destFile');
+      if (dHandle) {
+        if (await dHandle.queryPermission({ mode: 'readwrite' }) !== 'granted') {
+          await dHandle.requestPermission({ mode: 'readwrite' });
+        }
+        destFileHandle = dHandle;
+        document.getElementById('label-dest-name').textContent = `${dHandle.name} (Riconnesso)`;
+        showStatus('file-config-status', 'Connessione al file di output ripristinata!', 'ok');
+      }
+    } catch (err) {
+      showStatus('file-config-status', 'Errore riconnessione file output: ' + err.message, 'err');
+    }
+  });
+
+  /* ESTRAZIONE DATI PERI MENU A TENDINA DA LISTE.XLSX */
+  function loadTemplateDataFromBuffer(arrayBuffer, sourceLabel) {
+    const workbook = XLSX.read(new Uint8Array(arrayBuffer), {type: 'array'});
+    const firstSheetName = workbook.SheetNames[0];
+    const worksheet = workbook.Sheets[firstSheetName];
+    
+    const jsonData = XLSX.utils.sheet_to_json(worksheet, {header: 1});
+    if (!jsonData || jsonData.length === 0) {
+      showStatus('file-config-status', 'Il file Liste.xlsx non contiene dati validi.', 'err');
+      return;
+    }
+
+    const headers = jsonData[0].map(h => String(h).trim()).filter(h => h.length > 0);
+    
+    fieldOptionsMap = {};
+    headers.forEach((h, colIndex) => {
+      const values = new Set();
+      for (let r = 1; r < jsonData.length; r++) {
+        if (jsonData[r] && jsonData[r][colIndex] !== undefined && jsonData[r][colIndex] !== null) {
+          const val = String(jsonData[r][colIndex]).trim();
+          if (val) values.add(val);
+        }
+      }
+      fieldOptionsMap[h] = Array.from(values);
+    });
+
+    document.getElementById('label-template-name').textContent = sourceLabel;
+    setupFields(headers);
+    showStatus('file-config-status', `Menu opzioni configurati con successo da ${sourceLabel}!`, 'ok');
+  }
+
+  function setupFields(fields) {
+    dynamicFields = fields;
+    
+    const previewEl = document.getElementById('fields-preview');
+    previewEl.innerHTML = fields.map(f => `<span class="field-tag">${escapeHtml(f)} (${(fieldOptionsMap[f]||[]).length})</span>`).join('');
+    document.getElementById('fields-details').style.display = 'block';
+
+    const container = document.getElementById('dynamic-fields');
+    container.innerHTML = '';
+    
+    fields.forEach((f, idx) => {
+      const div = document.createElement('div');
+      const options = fieldOptionsMap[f] || [];
+      
+      let optionsHtml = '<option value="">-- Seleziona --</option>';
+      options.forEach(opt => {
+        optionsHtml += `<option value="${escapeHtml(opt)}">${escapeHtml(opt)}</option>`;
+      });
+
+      div.innerHTML = `
+        <label class="field-label" for="dyn-field-${idx}">${escapeHtml(f)}</label>
+        <select id="dyn-field-${idx}" data-field-name="${escapeHtml(f)}">
+          ${optionsHtml}
+        </select>
+      `;
+      container.appendChild(div);
+    });
+
+    document.getElementById('no-fields-msg').style.display = 'none';
+    document.getElementById('form-panel').style.display = 'block';
+    
+    setDefaultDate();
+    updateTableHeaders();
+    renderRecordsTable();
+  }
+
+  function setDefaultDate() {
+    const n = new Date(); document.getElementById('field-data').value = `${n.getFullYear()}-${String(n.getMonth()+1).padStart(2,'0')}-${String(n.getDate()).padStart(2,'0')}`;
+  }
+
+  document.querySelectorAll('nav.tabs button').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('nav.tabs button').forEach(b => b.classList.remove('active'));
+      document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+      document.querySelectorAll('nav.tabs button').forEach(b => b.setAttribute('aria-selected', b === btn));
+      btn.classList.add('active');
+      document.getElementById(btn.dataset.tab).classList.add('active');
+    });
+  });
+
+  document.getElementById('btn-add-record').addEventListener('click', function() {
+    const record = {};
+    record['Data'] = document.getElementById('field-data').value;
+
+    dynamicFields.forEach((f, idx) => {
+      const select = document.getElementById(`dyn-field-${idx}`);
+      record[f] = select ? select.value : '';
+    });
+
+    const oreVal = parseFloat(document.getElementById('field-ore').value);
+    if (!record['Data'] || !(oreVal > 0)) {
+      document.getElementById('form-error').textContent = 'Indica una data e un numero di ore maggiore di zero.';
+      document.getElementById('field-ore').focus();
+      return;
+    }
+    document.getElementById('form-error').textContent = '';
+    record['Ore'] = oreVal;
+    record['Note'] = document.getElementById('field-note').value.trim();
+
+    collectedRecords.push(record);
+    renderRecordsTable();
+
+    setDefaultDate();
+    dynamicFields.forEach((f, idx) => {
+      const select = document.getElementById(`dyn-field-${idx}`);
+      if (select && !document.getElementById('keep-selections').checked) select.selectedIndex = 0;
+    });
+    document.getElementById('field-ore').value = '';
+    document.getElementById('field-note').value = '';
+    document.getElementById('field-ore').focus();
+  });
+
+  function updateTableHeaders() {
+    const thead = document.getElementById('records-thead-row');
+    const cols = ['Data', ...dynamicFields, 'Ore', 'Note', 'Azione'];
+    thead.innerHTML = cols.map(c => `<th>${escapeHtml(c)}</th>`).join('');
+  }
+
+  function renderRecordsTable() {
+    const tbody = document.getElementById('records-tbody');
+    tbody.innerHTML = '';
+
+    collectedRecords.forEach((rec, idx) => {
+      const tr = document.createElement('tr');
+      let html = `<td>${escapeHtml(rec['Data'] || '')}</td>`;
+      
+      dynamicFields.forEach(f => {
+        html += `<td>${escapeHtml(rec[f] || '')}</td>`;
+      });
+
+      html += `<td><strong>${rec['Ore'] !== undefined ? rec['Ore'] : ''}</strong></td>`;
+      html += `<td>${escapeHtml(rec['Note'] || '')}</td>`;
+      html += `<td><button class="btn btn-icon-danger" onclick="deleteRecord(${idx})" aria-label="Elimina record"><i class="fa-solid fa-trash"></i></button></td>`;
+
+      tr.innerHTML = html;
+      tbody.appendChild(tr);
+    });
+
+    document.getElementById('records-panel').style.display = collectedRecords.length > 0 ? 'block' : 'none';
+    document.getElementById('record-count-header').innerHTML = `<i class="fa-solid fa-list-check"></i> ${collectedRecords.length} in coda`;
+    document.getElementById('queue-total').textContent = (Math.round(collectedRecords.reduce((t, r) => t + (r.Ore || 0), 0) * 100) / 100).toLocaleString('it-IT');
+    persistQueue();
+  }
+
+  window.deleteRecord = function(idx) {
+    collectedRecords.splice(idx, 1);
+    renderRecordsTable();
+  };
+
+  /* SALVATAGGIO DEI RECORD SUL FILE DI DESTINAZIONE EXCEL */
+  document.getElementById('btn-export-excel').addEventListener('click', async function() {
+    if (collectedRecords.length === 0) {
+      showStatus('export-status', 'Nessun nuovo record da salvare.', 'err');
+      return;
+    }
+
+    /* === SALVATAGGIO SU SHAREPOINT === */
+    if (window.spOutput && window.SP && window.SP.configured()) {
+      try {
+        const prev = window.fallbackBuffer || new ArrayBuffer(0);
+        const updated = mergeRecordsToExcelBuffer(prev, collectedRecords);
+        await window.SP.uploadItem(window.spOutput.driveId, window.spOutput.parentId, window.spOutput.name, updated);
+        window.fallbackBuffer = updated;
+        if (prev.byteLength > 0) backupOutput(window.spOutput.name, prev, 'Prima del salvataggio su SharePoint');
+        showStatus('export-status', `File SharePoint "${escapeHtml(window.spOutput.name)}" aggiornato con ${collectedRecords.length} record.`, 'ok');
+        collectedRecords = [];
+        renderRecordsTable();
+      } catch (err) {
+        showStatus('export-status', 'Errore durante il salvataggio su SharePoint: ' + escapeHtml(err.message), 'err');
+      }
+      return;
+    }
+
+    if (!destFileHandle) {
+      try {
+        const name = window.selectedOutputFileName || 'Tracciamento_Ore_Output.xlsx';
+        const prev = window.fallbackBuffer;
+        const buf = mergeRecordsToExcelBuffer(prev || new ArrayBuffer(0), collectedRecords);
+        const how = await deliverBuffer(buf, name);
+        window.fallbackBuffer = buf;
+        if (prev && prev.byteLength > 0) backupOutput(name, prev, 'Prima del salvataggio (consegnato/scaricato)');
+        showStatus('export-status', how === 'shared'
+          ? `File "${escapeHtml(name)}" inviato al foglio di condivisione: scegli "Salva su File" / Drive per decidere la cartella.`
+          : `File "${escapeHtml(name)}" scaricato nella cartella Download del browser.`, 'ok');
+        collectedRecords = [];
+        renderRecordsTable();
+      } catch (err) {
+        if (err && err.name === 'AbortError') {
+          showStatus('export-status', 'Salvataggio annullato: i record sono ancora in coda.', 'err');
+        } else {
+          showStatus('export-status', 'Errore durante l\'esportazione: ' + escapeHtml(err.message), 'err');
+        }
+      }
+      return;
+    }
+
+    try {
+      let arrayBuffer = new ArrayBuffer(0);
+      try {
+        const fileData = await destFileHandle.getFile();
+        arrayBuffer = await fileData.arrayBuffer();
+      } catch (e) { }
+      
+      const updatedBuffer = mergeRecordsToExcelBuffer(arrayBuffer, collectedRecords);
+
+      let bkNote = '';
+      if (arrayBuffer.byteLength > 0) {
+        const bkOk = await backupOutput(destFileHandle.name, arrayBuffer, `Prima del salvataggio di ${collectedRecords.length} record`);
+        bkNote = bkOk ? ' Copia di sicurezza della versione precedente creata.' : ' Attenzione: copia di sicurezza non riuscita.';
+      }
+
+      const writableStream = await destFileHandle.createWritable();
+      await writableStream.write(updatedBuffer);
+      await writableStream.close();
+
+      showStatus('export-status', `File locale "${escapeHtml(destFileHandle.name)}" aggiornato con successo!${bkNote}`, 'ok');
+
+      collectedRecords = [];
+      renderRecordsTable();
+    } catch (err) {
+      showStatus('export-status', 'Errore durante l\'aggiornamento del file locale: ' + err.message, 'err');
+    }
+  });
+
+  /* Lettura in append del file excel esistente mantenendo i record precedenti */
+  function mergeRecordsToExcelBuffer(arrayBuffer, newRecords) {
+    let existingRecords = [];
+    let workbook = XLSX.utils.book_new();
+    let firstSheetName = "Dati_Raccolti";
+
+    if (arrayBuffer && arrayBuffer.byteLength > 0) {
+      try {
+        workbook = XLSX.read(new Uint8Array(arrayBuffer), { type: 'array' });
+        firstSheetName = workbook.SheetNames[0] || "Dati_Raccolti";
+        const worksheet = workbook.Sheets[firstSheetName];
+        if (worksheet) {
+          existingRecords = XLSX.utils.sheet_to_json(worksheet, { defval: "" }) || [];
+        }
+      } catch (err) {
+        console.warn("Impossibile leggere il file esistente, verrà creato un nuovo foglio:", err);
+      }
+    }
+
+    const updatedRecords = [...existingRecords, ...newRecords];
+    const newWorksheet = XLSX.utils.json_to_sheet(updatedRecords);
+    
+    workbook.Sheets[firstSheetName] = newWorksheet;
+    if (!workbook.SheetNames.includes(firstSheetName)) {
+      XLSX.utils.book_append_sheet(workbook, newWorksheet, firstSheetName);
+    }
+
+    return XLSX.write(workbook, { bookType: 'xlsx', type: 'array' });
+  }
+
+  document.getElementById('btn-load-saved-dest').addEventListener('click', async function() {
+    let handle = destFileHandle || await getHandle('destFile');
+
+    if (!handle) {
+      if (window.fallbackBuffer && window.fallbackBuffer.byteLength > 0) {
+        parseAndProcessStatsBuffer(window.fallbackBuffer, window.selectedOutputFileName || 'File di output');
+        return;
+      }
+      showStatus('stats-status', 'Nessun file locale di destinazione memorizzato. Configura prima il file locale.', 'err');
+      return;
+    }
+
+    try {
+      if (await handle.queryPermission({ mode: 'read' }) !== 'granted') {
+        const perm = await handle.requestPermission({ mode: 'read' });
+        if (perm !== 'granted') {
+          showStatus('stats-status', 'Autorizzazione negata per la lettura del file locale.', 'err');
+          return;
+        }
+      }
+
+      destFileHandle = handle;
+      const file = await handle.getFile();
+      if (file.size === 0) {
+        showStatus('stats-status', `Il file "${handle.name}" è ancora vuoto: salva prima almeno un record.`, 'err');
+        return;
+      }
+      const arrayBuffer = await file.arrayBuffer();
+      parseAndProcessStatsBuffer(arrayBuffer, handle.name);
+
+    } catch (err) {
+      showStatus('stats-status', 'Errore nella lettura del file locale: ' + err.message, 'err');
+    }
+  });
+
+  function parseAndProcessStatsBuffer(arrayBuffer, sourceLabel) {
+    const workbook = XLSX.read(new Uint8Array(arrayBuffer), {type: 'array'});
+    const sheet = workbook.Sheets[workbook.SheetNames[0]];
+    const records = XLSX.utils.sheet_to_json(sheet);
+
+    if (records.length === 0) {
+      showStatus('stats-status', `Il file "${sourceLabel}" è vuoto o non contiene record validi.`, 'err');
+      return;
+    }
+
+    processAndInitStats(records);
+    showStatus('stats-status', `Analisi completata da "${sourceLabel}" (${records.length} record).`, 'ok');
+  }
+
+  document.getElementById('stats-file').addEventListener('change', function(e) {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = function(evt) {
+      try {
+        parseAndProcessStatsBuffer(evt.target.result, file.name);
+      } catch (err) {
+        showStatus('stats-status', 'Errore lettura file: ' + err.message, 'err');
+      }
+    };
+    reader.readAsArrayBuffer(file);
+  });
+
+  function parseRecordDate(dateVal) {
+    if (!dateVal) return null;
+    if (typeof dateVal === 'number') {
+      const parsed = XLSX.SSF.parse_date_code(dateVal);
+      if (parsed) return new Date(parsed.y, parsed.m - 1, parsed.d);
+    }
+    const d = new Date(dateVal);
+    if (!isNaN(d.getTime())) return d;
+    return null;
+  }
+
+  function processAndInitStats(records) {
+    rawStatsRecords = records;
+    
+    const anniSet = new Set();
+    records.forEach(r => {
+      const dateKey = findMatchingKey(r, ['data', 'date']);
+      const d = parseRecordDate(r[dateKey]);
+      if (d) anniSet.add(d.getFullYear());
+    });
+
+    const annoSelect = document.getElementById('filter-anno');
+    annoSelect.innerHTML = '<option value="ALL">Tutti gli Anni</option>';
+    Array.from(anniSet).sort((a,b) => b - a).forEach(anno => {
+      const opt = document.createElement('option');
+      opt.value = anno;
+      opt.textContent = anno;
+      annoSelect.appendChild(opt);
+    });
+
+    document.getElementById('filter-mese').value = 'ALL';
+    document.getElementById('filter-anno').value = 'ALL';
+
+    updateFilteredStats();
+  }
+
+  function updateFilteredStats() {
+    if (rawStatsRecords.length === 0) return;
+
+    const meseVal = document.getElementById('filter-mese').value;
+    const annoVal = document.getElementById('filter-anno').value;
+
+    const filteredRecords = rawStatsRecords.filter(r => {
+      const dateKey = findMatchingKey(r, ['data', 'date']);
+      const d = parseRecordDate(r[dateKey]);
+      
+      if (!d) return true;
+
+      const matchMese = (meseVal === 'ALL') || ((d.getMonth() + 1) === parseInt(meseVal, 10));
+      const matchAnno = (annoVal === 'ALL') || (d.getFullYear() === parseInt(annoVal, 10));
+
+      return matchMese && matchAnno;
+    });
+
+    renderStats(filteredRecords);
+  }
+
+  function renderStats(records) {
+    document.getElementById('no-stats-msg').style.display = 'none';
+    document.getElementById('stats-content').style.display = 'block';
+
+    let totalOre = 0;
+    records.forEach(r => { totalOre += parseFloat(r.Ore || r.ore) || 0; });
+
+    document.getElementById('stat-summary-cards').innerHTML = `
+      <div class="stat-card">
+        <div class="icon-box"><i class="fa-solid fa-folder-open"></i></div>
+        <div>
+          <div class="num">${records.length}</div>
+          <div class="label">Totale Record</div>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="icon-box"><i class="fa-solid fa-business-time"></i></div>
+        <div>
+          <div class="num">${(Math.round(totalOre*100)/100).toLocaleString('it-IT')}</div>
+          <div class="label">Totale Ore Registrate</div>
+        </div>
+      </div>
+    `;
+
+    createGroupedBarChart('chart-cliente-tecnico', records, ['cliente', 'commessa', 'azienda'], ['nome', 'risorsa', 'operatore', 'tecnico']);
+    createBarChart('chart-nome', records, ['nome', 'risorsa', 'operatore', 'tecnico'], 'Ore per Nome', '#5b6cf0', 'y');
+    createBarChart('chart-cliente', records, ['cliente', 'commessa', 'azienda'], 'Ore per Cliente', '#1fb5a0', 'y');
+    createBarChart('chart-area', records, ['area', 'ambito', 'reparto'], 'Ore per Area', '#9a7cf8', 'y');
+    createBarChart('chart-servizio', records, ['servizio', 'attività', 'tipo'], 'Ore per Servizio', '#f0a020', 'y');
+    createPieChart('chart-modalita', records, ['modalità', 'modalita', 'luogo'], 'Ore per Modalità');
+  }
+
+  function createGroupedBarChart(canvasId, records, clientKeys, techKeys) {
+    const canvas = document.getElementById(canvasId);
+    if (!canvas) return;
+
+    if (records.length === 0) {
+      if (chartInstances[canvasId]) chartInstances[canvasId].destroy();
+      return;
+    }
+
+    const clientKey = findMatchingKey(records[0], clientKeys);
+    const techKey = findMatchingKey(records[0], techKeys);
+
+    const clientSet = new Set();
+    const techSet = new Set();
+    const matrix = {};
+
+    records.forEach(r => {
+      const cliente = r[clientKey] ? String(r[clientKey]).trim() : '(Cliente non sp.)';
+      const tecnico = r[techKey] ? String(r[techKey]).trim() : '(Tecnico non sp.)';
+      const ore = parseFloat(r.Ore || r.ore) || 0;
+
+      clientSet.add(cliente);
+      techSet.add(tecnico);
+
+      if (!matrix[cliente]) matrix[cliente] = {};
+      matrix[cliente][tecnico] = (matrix[cliente][tecnico] || 0) + ore;
+    });
+
+    const clients = Array.from(clientSet);
+    const technicians = Array.from(techSet);
+
+    const palette = ['#5b6cf0', '#1fb5a0', '#f0a020', '#e60012', '#9a7cf8', '#0ea5e9', '#64748b', '#d946a8'];
+
+    const datasets = technicians.map((tech, idx) => {
+      return {
+        label: tech,
+        data: clients.map(client => (matrix[client] && matrix[client][tech]) ? matrix[client][tech] : 0),
+        backgroundColor: palette[idx % palette.length],
+        borderRadius: 4
+      };
+    });
+
+    if (chartInstances[canvasId]) chartInstances[canvasId].destroy();
+
+    const ctx = canvas.getContext('2d');
+    chartInstances[canvasId] = new Chart(ctx, {
+      type: 'bar',
+      data: { labels: clients, datasets },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { position: 'top' },
+          tooltip: {
+            callbacks: {
+              label: (context) => ` ${context.dataset.label}: ${context.raw} ore`
+            }
+          }
+        },
+        scales: {
+          x: { grid: { color: 'rgba(128,132,150,.16)' }, title: { display: true, text: 'Clienti' } },
+          y: { grid: { color: 'rgba(128,132,150,.16)' }, beginAtZero: true, title: { display: true, text: 'Ore Lavorate' } }
+        }
+      }
+    });
+  }
+
+  function createBarChart(canvasId, records, possibleKeys, labelText, color, indexAxis = 'y') {
+    if (records.length === 0) {
+      if (chartInstances[canvasId]) chartInstances[canvasId].destroy();
+      return;
+    }
+    const actualKey = findMatchingKey(records[0], possibleKeys);
+    const { labels, dataValues } = aggregateData(records, actualKey);
+
+    if (chartInstances[canvasId]) chartInstances[canvasId].destroy();
+
+    const ctx = document.getElementById(canvasId).getContext('2d');
+    chartInstances[canvasId] = new Chart(ctx, {
+      type: 'bar',
+      data: { labels, datasets: [{ label: labelText, data: dataValues, backgroundColor: color, borderRadius: 8, maxBarThickness: 48 }] },
+      options: {
+        indexAxis: indexAxis === 'x' ? 'y' : 'x',
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: { legend: { display: false } },
+        scales: { 
+          x: { grid: { color: 'rgba(128,132,150,.16)' }, beginAtZero: true },
+          y: { grid: { color: 'rgba(128,132,150,.16)' }, beginAtZero: true }
+        }
+      }
+    });
+  }
+
+  function createPieChart(canvasId, records, possibleKeys, labelText) {
+    if (records.length === 0) {
+      if (chartInstances[canvasId]) chartInstances[canvasId].destroy();
+      return;
+    }
+    const actualKey = findMatchingKey(records[0], possibleKeys);
+    const { labels, dataValues } = aggregateData(records, actualKey);
+    const pieColors = ['#5b6cf0', '#1fb5a0', '#f0a020', '#e60012', '#9a7cf8', '#0ea5e9', '#64748b'];
+
+    if (chartInstances[canvasId]) chartInstances[canvasId].destroy();
+
+    const ctx = document.getElementById(canvasId).getContext('2d');
+    chartInstances[canvasId] = new Chart(ctx, {
+      type: 'doughnut',
+      data: { labels, datasets: [{ label: labelText, data: dataValues, backgroundColor: pieColors.slice(0, labels.length), borderWidth: 3, borderColor: 'transparent', hoverOffset: 8 }] },
+      options: { cutout: '62%', responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom' } } }
+    });
+  }
+
+  function findMatchingKey(sampleRecord, possibleKeys) {
+    if (!sampleRecord) return possibleKeys[0];
+    return Object.keys(sampleRecord).find(k => possibleKeys.includes(k.trim().toLowerCase())) || possibleKeys[0];
+  }
+
+  function aggregateData(records, key) {
+    const aggregated = {};
+    records.forEach(r => {
+      const groupVal = r[key] ? String(r[key]).trim() : '(Non specificato)';
+      const ore = parseFloat(r.Ore || r.ore) || 0;
+      aggregated[groupVal] = (aggregated[groupVal] || 0) + ore;
+    });
+    const sorted = Object.entries(aggregated).sort((a, b) => b[1] - a[1]);
+    return { labels: sorted.map(e => e[0]), dataValues: sorted.map(e => Math.round(e[1] * 100) / 100) };
+  }
+
+  function showStatus(elementId, message, type) {
+    const el = document.getElementById(elementId);
+    if (!el) return;
+    const icon = type === 'ok' ? '<i class="fa-solid fa-circle-check"></i>' : '<i class="fa-solid fa-circle-exclamation"></i>';
+    el.className = `status-msg status-${type}`;
+    el.innerHTML = `${icon} ${message}`;
+  }
+
+  /* ERGONOMIA FORM */
+  const oreInput = document.getElementById('field-ore');
+  const stepOre = d => { oreInput.value = Math.max(0, (parseFloat(oreInput.value) || 0) + d); };
+  document.getElementById('ore-minus').addEventListener('click', () => stepOre(-0.25));
+  document.getElementById('ore-plus').addEventListener('click', () => stepOre(0.25));
+  document.querySelectorAll('[data-ore]').forEach(b => b.addEventListener('click', () => { oreInput.value = b.dataset.ore; oreInput.focus(); }));
+  document.getElementById('btn-today').addEventListener('click', setDefaultDate);
+  document.getElementById('form-panel').addEventListener('keydown', e => {
+    if (e.key !== 'Enter' || e.target.closest('button')) return;
+    if (e.target.tagName === 'TEXTAREA' && !e.ctrlKey && !e.metaKey) return;
+    e.preventDefault();
+    document.getElementById('btn-add-record').click();
+  });
+  document.getElementById('btn-clear-queue').addEventListener('click', () => {
+    if (collectedRecords.length && confirm('Svuotare la coda? I record non ancora salvati nel file andranno persi.')) {
+      collectedRecords = []; renderRecordsTable();
+    }
+  });
+  window.addEventListener('beforeunload', e => { if (collectedRecords.length && !queuePersistOk) { e.preventDefault(); e.returnValue = ''; } });
+  restoreQueue();
+  document.querySelector('nav.tabs').addEventListener('keydown', e => {
+    if (e.key !== 'ArrowRight' && e.key !== 'ArrowLeft') return;
+    const tabs = [...document.querySelectorAll('nav.tabs button')];
+    const next = tabs[(tabs.indexOf(document.activeElement) + (e.key === 'ArrowRight' ? 1 : -1) + tabs.length) % tabs.length];
+    next.focus(); next.click();
+  });
+
+  function escapeHtml(str) {
+    return String(str).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
+  }
+</script>
+<script>
+  /* ===== IO LAYER: selezione/creazione output e invio WhatsApp, multipiattaforma ===== */
+  const IO = (() => {
+    const XLSX_MIME = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet';
+    const ua = navigator.userAgent;
+    const IS_IOS = /iPad|iPhone|iPod/.test(ua) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+    const IS_ANDROID = /Android/i.test(ua);
+    const IS_MOBILE = IS_IOS || IS_ANDROID;
+    const HAS_OPEN = 'showOpenFilePicker' in window;
+    const HAS_SAVE = 'showSaveFilePicker' in window;
+    const TYPES = [{ description: 'File Excel', accept: { [XLSX_MIME]: ['.xlsx'] } }];
+
+    if (IS_MOBILE) document.documentElement.classList.add('is-mobile');
+
+    const makeFile = (buf, name) => new File([buf], name, { type: XLSX_MIME });
+    const canShare = f => !!(navigator.share && navigator.canShare && navigator.canShare({ files: [f] }));
+    const fmtSize = n => n < 1024 ? n + ' B' : (n / 1024).toFixed(1) + ' KB';
+
+    function download(file) {
+      const url = URL.createObjectURL(file);
+      const a = document.createElement('a');
+      a.href = url; a.download = file.name;
+      document.body.appendChild(a); a.click(); a.remove();
+      setTimeout(() => URL.revokeObjectURL(url), 10000);
+    }
+
+    function pickViaInput(input) {
+      return new Promise(resolve => {
+        input.value = '';
+        input.addEventListener('change', () => resolve(input.files[0] || null), { once: true });
+        input.addEventListener('cancel', () => resolve(null), { once: true });
+        input.click();
+      });
+    }
+
+    async function deliver(buf, name) {
+      const file = makeFile(buf, name);
+      if (IS_MOBILE && canShare(file)) {
+        await navigator.share({ files: [file], title: name });
+        return 'shared';
+      }
+      download(file);
+      return 'downloaded';
+    }
+
+    return { XLSX_MIME, IS_IOS, IS_ANDROID, IS_MOBILE, HAS_OPEN, HAS_SAVE, TYPES, makeFile, canShare, fmtSize, download, pickViaInput, deliver };
+  })();
+  window.deliverBuffer = IO.deliver;
+  window.fallbackBuffer = null;
+  window.selectedOutputFileName = window.selectedOutputFileName || null;
+  window.spOutput = null;
+
+  /* ---------- Scelta / creazione file di output ---------- */
+  (function () {
+    const dlg = document.getElementById('dlg-output');
+    const hint = document.getElementById('dlg-output-hint');
+    const S = 'file-config-status';
+    const setLabel = (txt) => {
+      document.getElementById('label-dest-name').textContent = txt;
+      document.getElementById('btn-reconnect-dest').style.display = destFileHandle ? 'inline-flex' : document.getElementById('btn-reconnect-dest').style.display;
+    };
+
+    function hintText() {
+      if (IO.IS_IOS) return 'Si aprirà l\'app File (iCloud Drive, Su questo iPhone, altri provider). iOS non consente a un sito di scegliere la cartella in anticipo: al momento del salvataggio comparirà il foglio di condivisione, dove scegli «Salva su File» e la cartella che preferisci.';
+      if (IO.IS_ANDROID) return IO.HAS_SAVE
+        ? 'Si aprirà il selettore di Android: puoi scegliere qualsiasi cartella (Download, Documenti, Drive, scheda SD...) e il file verrà aggiornato direttamente lì.'
+        : 'Si aprirà il selettore di Android (Download, Drive, scheda SD...). Al salvataggio comparirà il foglio di condivisione, dove puoi scegliere la cartella o inviare il file via WhatsApp.';
+      if (IO.HAS_SAVE) return 'Si aprirà la finestra di sistema: puoi sfogliare tutte le unità e cartelle (locali, di rete, OneDrive...) e il file verrà aggiornato direttamente nel punto scelto.';
+      return 'Questo browser non permette di scegliere la cartella: il file verrà scaricato nella cartella Download. Per avere il controllo completo usa Chrome o Edge.';
+    }
+
+    document.getElementById('btn-load-local-dest').addEventListener('click', () => {
+      hint.textContent = hintText();
+      dlg.showModal();
+    });
+    document.getElementById('out-cancel').addEventListener('click', () => dlg.close());
+
+    document.getElementById('out-open').addEventListener('click', async () => {
+      dlg.close();
+      try {
+        if (IO.HAS_OPEN) {
+          const [h] = await window.showOpenFilePicker({ id: 'output-file', multiple: false, types: IO.TYPES });
+          if (await h.requestPermission({ mode: 'readwrite' }) !== 'granted') {
+            showStatus(S, 'Autorizzazione di scrittura negata sul file scelto.', 'err');
+            return;
+          }
+          destFileHandle = h; window.fallbackBuffer = null; window.selectedOutputFileName = h.name; window.spOutput = null;
+          try { await saveHandle('destFile', h); } catch (e) { }
+          setLabel(h.name + ' (Locale Output)');
+          document.getElementById('btn-reconnect-dest').style.display = 'inline-flex';
+          showStatus(S, `File di output "${escapeHtml(h.name)}" configurato con successo!`, 'ok');
+        } else {
+          const f = await IO.pickViaInput(document.getElementById('input-local-dest-fallback'));
+          if (!f) return;
+          destFileHandle = null; window.spOutput = null;
+          window.fallbackBuffer = await f.arrayBuffer();
+          window.selectedOutputFileName = f.name;
+          setLabel(`${f.name} (verrà salvato/condiviso al salvataggio)`);
+          showStatus(S, `File di output "${escapeHtml(f.name)}" caricato: i nuovi record verranno aggiunti a quelli esistenti.`, 'ok');
+        }
+      } catch (err) {
+        if (err.name !== 'AbortError') showStatus(S, 'Errore nella selezione del file: ' + escapeHtml(err.message), 'err');
+      }
+    });
+
+    document.getElementById('out-new').addEventListener('click', async () => {
+      dlg.close();
+      try {
+        if (IO.HAS_SAVE) {
+          const h = await window.showSaveFilePicker({ id: 'output-file', startIn: 'documents', suggestedName: 'Tracciamento_Ore.xlsx', types: IO.TYPES });
+          destFileHandle = h; window.fallbackBuffer = null; window.selectedOutputFileName = h.name; window.spOutput = null;
+          try { await saveHandle('destFile', h); } catch (e) { }
+          setLabel(h.name + ' (Locale Output)');
+          document.getElementById('btn-reconnect-dest').style.display = 'inline-flex';
+          showStatus(S, `File di output "${escapeHtml(h.name)}" configurato con successo!`, 'ok');
+        } else {
+          let name = window.prompt('Nome del file di output da creare:', window.selectedOutputFileName || 'Tracciamento_Ore.xlsx');
+          if (!name || !name.trim()) return;
+          name = name.trim().replace(/[\\/:*?"<>|]/g, '_');
+          if (!/\.xlsx$/i.test(name)) name += '.xlsx';
+          destFileHandle = null; window.fallbackBuffer = null; window.selectedOutputFileName = name; window.spOutput = null;
+          setLabel(`${name} (verrà salvato/condiviso al salvataggio)`);
+          showStatus(S, `Nome del file di output impostato: "${escapeHtml(name)}".`, 'ok');
+        }
+      } catch (err) {
+        if (err.name !== 'AbortError') showStatus(S, 'Errore nella creazione del file: ' + escapeHtml(err.message), 'err');
+      }
+    });
+  })();
+
+  /* ---------- Finestra "Invia via WhatsApp" (solo mobile) ---------- */
+  (function () {
+    const dlg = document.getElementById('dlg-wa');
+    const info = document.getElementById('wa-file');
+    const warn = document.getElementById('wa-warn');
+    const bSend = document.getElementById('wa-send'), bSave = document.getElementById('wa-save');
+    let ready = null;
+
+    async function prepare() {
+      ready = null; bSend.disabled = bSave.disabled = true; warn.textContent = '';
+      info.textContent = 'Preparazione del file...';
+      try {
+        let buf = null, name = window.selectedOutputFileName || 'Tracciamento_Ore.xlsx';
+        if (destFileHandle) {
+          if (await destFileHandle.queryPermission({ mode: 'read' }) !== 'granted') await destFileHandle.requestPermission({ mode: 'read' });
+          const f = await destFileHandle.getFile();
+          name = f.name; buf = await f.arrayBuffer();
+        } else if (window.fallbackBuffer) {
+          buf = window.fallbackBuffer;
+        }
+        if (!buf || buf.byteLength === 0) {
+          info.textContent = 'Nessun file di output con dati da inviare.';
+          warn.textContent = 'Configura il file di output e salva almeno un record, poi riprova.';
+          return;
+        }
+        ready = IO.makeFile(buf, name);
+        info.innerHTML = `<strong>${escapeHtml(name)}</strong>${IO.fmtSize(ready.size)}`;
+        if (collectedRecords.length > 0) warn.textContent = `Attenzione: ci sono ${collectedRecords.length} record in coda non ancora salvati, che non saranno inclusi.`;
+        if (!IO.canShare(ready)) {
+          warn.textContent = 'Questo browser non può condividere file direttamente: usa "Salva in una cartella" e poi allega il file in WhatsApp.';
+          bSave.disabled = false;
+          return;
+        }
+        bSend.disabled = false; bSave.disabled = false;
+      } catch (err) {
+        info.textContent = 'Errore nella preparazione del file: ' + err.message;
+      }
+    }
+
+    const open = () => { dlg.showModal(); prepare(); };
+    document.getElementById('btn-open-wa').addEventListener('click', open);
+    document.getElementById('wa-close').addEventListener('click', () => dlg.close());
+
+    bSend.addEventListener('click', async () => {
+      if (!ready) return;
+      try {
+        await navigator.share({ files: [ready], title: ready.name, text: 'File ore: ' + ready.name });
+        dlg.close();
+        showStatus('file-config-status', `File "${escapeHtml(ready.name)}" inviato al foglio di condivisione.`, 'ok');
+      } catch (err) {
+        if (err.name !== 'AbortError') warn.textContent = 'Errore nella condivisione: ' + err.message;
+      }
+    });
+    bSave.addEventListener('click', async () => {
+      if (!ready) return;
+      try {
+        if (IO.canShare(ready)) await navigator.share({ files: [ready], title: ready.name });
+        else IO.download(ready);
+      } catch (err) {
+        if (err.name !== 'AbortError') warn.textContent = 'Errore: ' + err.message;
+      }
+    });
+  })();
+</script>
+<script>
+  /* ===== UI COPIE DI SICUREZZA ===== */
+  const backupCache = new Map();
+
+  async function refreshBackups() {
+    const list = document.getElementById('backup-list');
+    if (!list) return;
+    try {
+      const all = (await dbGetAll('backups')).sort((a, b) => b.key.localeCompare(a.key));
+      backupCache.clear();
+      all.forEach(e => backupCache.set(e.key, e.value));
+      if (!all.length) { list.innerHTML = '<p class="hint">Nessuna copia di sicurezza ancora presente.</p>'; return; }
+      const fmtSize = n => n < 1024 * 1024 ? (n / 1024).toFixed(1) + ' KB' : (n / 1048576).toFixed(2) + ' MB';
+      list.innerHTML = all.map((e, i) => `
+        <div class="file-item">
+          <small>${new Date(e.value.savedAt).toLocaleString('it-IT')}${i === 0 ? ' · più recente' : ''} · ${escapeHtml(e.value.reason || '')}</small>
+          <span class="name">${escapeHtml(e.value.name)} (${fmtSize(e.value.size)})</span>
+          <button class="btn btn-outline" data-bk-restore="${escapeHtml(e.key)}"><i class="fa-solid fa-rotate-left"></i> Ripristina</button>
+          <button class="btn btn-outline" data-bk-dl="${escapeHtml(e.key)}"><i class="fa-solid fa-download"></i> Scarica</button>
+        </div>`).join('');
+    } catch (err) {
+      list.innerHTML = '<p class="hint">Le copie di sicurezza non sono disponibili in questo browser.</p>';
+    }
+  }
+
+  async function restoreBackup(key) {
+    const S = 'backup-status';
+    const bk = backupCache.get(key);
+    if (!bk) return;
+    try {
+      let handle = destFileHandle;
+      const cur = handle ? handle.name : window.selectedOutputFileName;
+      const when = new Date(bk.savedAt).toLocaleString('it-IT');
+      let msg = `Ripristinare la copia del ${when}? Il contenuto attuale del file di output verrà sostituito (ne verrà prima conservata una copia).`;
+      if (cur && cur !== bk.name) msg += `\n\nAttenzione: la copia è di "${bk.name}", il file di output attuale è "${cur}".`;
+      if (!confirm(msg)) return;
+
+      if (!handle && IO.HAS_OPEN) handle = await getHandle('destFile');
+      if (handle) {
+        if (await handle.queryPermission({ mode: 'readwrite' }) !== 'granted' &&
+            await handle.requestPermission({ mode: 'readwrite' }) !== 'granted') {
+          showStatus(S, 'Autorizzazione negata per la scrittura del file di output.', 'err');
+          return;
+        }
+        destFileHandle = handle;
+        const current = await (await handle.getFile()).arrayBuffer();
+        await backupOutput(handle.name, current, 'Prima del ripristino');
+        const w = await handle.createWritable();
+        await w.write(bk.buffer.slice(0));
+        await w.close();
+        showStatus(S, `Copia del ${when} ripristinata in "${escapeHtml(handle.name)}".`, 'ok');
+      } else if (IO.HAS_OPEN) {
+        showStatus(S, 'Configura prima il file di output nella scheda Inserimento.', 'err');
+      } else {
+        const prev = window.fallbackBuffer;
+        if (prev && prev.byteLength > 0) await backupOutput(cur || bk.name, prev, 'Prima del ripristino');
+        window.fallbackBuffer = bk.buffer.slice(0);
+        if (!window.selectedOutputFileName) {
+          window.selectedOutputFileName = bk.name;
+          document.getElementById('label-dest-name').textContent = `${bk.name} (verrà salvato/condiviso al salvataggio)`;
+        }
+        document.getElementById('import-deliver').style.display = 'block';
+        showStatus(S, `Copia del ${when} ripristinata. Tocca "Salva / condividi file aggiornato" (in alto, sotto Importa file esterno) per consegnare il file.`, 'ok');
+      }
+      refreshBackups();
+    } catch (err) {
+      showStatus(S, 'Errore nel ripristino: ' + escapeHtml(err.message), 'err');
+    }
+  }
+
+  document.getElementById('backup-list').addEventListener('click', e => {
+    const r = e.target.closest('[data-bk-restore]'), d = e.target.closest('[data-bk-dl]');
+    if (r) restoreBackup(r.dataset.bkRestore);
+    if (d) {
+      const bk = backupCache.get(d.dataset.bkDl);
+      if (bk) {
+        const ts = new Date(bk.savedAt).toISOString().slice(0, 16).replace(/[:T]/g, '-');
+        IO.download(IO.makeFile(bk.buffer, bk.name.replace(/\.xlsx$/i, '') + '_backup_' + ts + '.xlsx'));
+      }
+    }
+  });
+  document.querySelector('[data-tab="tab-importa"]').addEventListener('click', refreshBackups);
+  refreshBackups();
+</script>
+<script>
+  /* Micro-interazione: ripple Material sui pulsanti */
+  document.addEventListener('pointerdown', e => {
+    const t = e.target.closest('.btn, .chip, .stepper button, nav.tabs button');
+    if (!t) return;
+    const r = t.getBoundingClientRect(), s = Math.max(r.width, r.height) * 2;
+    const el = document.createElement('span');
+    el.className = 'ripple';
+    el.style.cssText = `width:${s}px;height:${s}px;left:${e.clientX - r.left - s / 2}px;top:${e.clientY - r.top - s / 2}px`;
+    t.appendChild(el);
+    el.addEventListener('animationend', () => el.remove());
+  });
+  /* Aggiorna i colori dei grafici al cambio tema chiaro/scuro */
+  matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
+    Chart.defaults.color = getComputedStyle(document.documentElement).getPropertyValue('--m-on-variant').trim();
+    if (rawStatsRecords.length) updateFilteredStats();
+  });
+</script>
+<script>
+  /* ===== IMPORTA FILE ESTERNO: unisce i record diversi al file di output e riordina per data ===== */
+  (function () {
+    const iso = (y, m, d) => `${y}-${String(m).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
+    const hasData = r => Object.values(r).some(v => String(v).trim() !== '');
+    const dateKeyOf = r => Object.keys(r).find(k => ['data', 'date'].includes(k.trim().toLowerCase()));
+
+    function normDate(v) {
+      if (v === undefined || v === null || v === '') return '';
+      if (v instanceof Date && !isNaN(v)) return iso(v.getFullYear(), v.getMonth() + 1, v.getDate());
+      if (typeof v === 'number') { const p = XLSX.SSF.parse_date_code(v); return p ? iso(p.y, p.m, p.d) : ''; }
+      const s = String(v).trim();
+      let m = s.match(/^(\d{4})-(\d{1,2})-(\d{1,2})/);
+      if (m) return iso(m[1], +m[2], +m[3]);
+      m = s.match(/^(\d{1,2})[\/.\-](\d{1,2})[\/.\-](\d{4})/);
+      if (m) return iso(m[3], +m[2], +m[1]);
+      const d = parseRecordDate(s);
+      return d ? iso(d.getFullYear(), d.getMonth() + 1, d.getDate()) : '';
+    }
+
+    function recKey(r) {
+      const dk = dateKeyOf(r);
+      return Object.keys(r).filter(k => String(r[k]).trim() !== '').sort().map(k => {
+        let v = r[k];
+        if (k === dk) v = normDate(v) || String(v).trim();
+        else {
+          const s = String(v).trim().replace(',', '.');
+          v = (s !== '' && !isNaN(s)) ? Math.round(parseFloat(s) * 1000) / 1000 : String(v).trim().toLowerCase();
+        }
+        return k.trim().toLowerCase() + '=' + v;
+      }).join('|');
+    }
+
+    function sortByDate(list) {
+      return list.map((r, i) => ({ r, i, k: normDate(r[dateKeyOf(r)]) || '9999-99-99' }))
+        .sort((a, b) => a.k < b.k ? -1 : a.k > b.k ? 1 : a.i - b.i).map(x => x.r);
+    }
+
+    function renderResult(read, added, dups) {
+      const card = (icon, n, label) => `<div class="stat-card"><div class="icon-box"><i class="fa-solid ${icon}"></i></div><div><div class="num">${n}</div><div class="label">${label}</div></div></div>`;
+      document.getElementById('import-result').innerHTML =
+        card('fa-file-lines', read, 'Record letti') + card('fa-circle-plus', added, 'Record aggiunti') + card('fa-clone', dups, 'Già presenti (saltati)');
+    }
+
+    const syncDestName = () => { document.getElementById('import-dest-name').textContent = document.getElementById('label-dest-name').textContent; };
+    document.querySelector('[data-tab="tab-importa"]').addEventListener('click', syncDestName);
+
+    document.getElementById('btn-import-external').addEventListener('click', async () => {
+      const S = 'import-status';
+      document.getElementById('import-deliver').style.display = 'none';
+      let extPromise = null;
+      if (!IO.HAS_OPEN) {
+        if (!destFileHandle && !window.spOutput && window.fallbackBuffer == null && !window.selectedOutputFileName) {
+          showStatus(S, 'Configura prima il file di output nella scheda Inserimento.', 'err');
+          return;
+        }
+        extPromise = IO.pickViaInput(document.getElementById('input-import-external'));
+      }
+      try {
+        const handle = destFileHandle || (IO.HAS_OPEN ? await getHandle('destFile') : null);
+        if (!handle && !window.spOutput && window.fallbackBuffer == null && !window.selectedOutputFileName) {
+          showStatus(S, 'Configura prima il file di output nella scheda Inserimento.', 'err');
+          return;
+        }
+        let extFile;
+        if (handle) {
+          if (await handle.queryPermission({ mode: 'readwrite' }) !== 'granted' &&
+              await handle.requestPermission({ mode: 'readwrite' }) !== 'granted') {
+            showStatus(S, 'Autorizzazione negata per la scrittura del file di output.', 'err');
+            return;
+          }
+          destFileHandle = handle;
+          syncDestName();
+        }
+        if (IO.HAS_OPEN) {
+          const [ext] = await window.showOpenFilePicker({
+            id: 'import-file', multiple: false,
+            types: [{ description: 'File Excel', accept: {
+              'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet': ['.xlsx'],
+              'application/vnd.ms-excel': ['.xls'] } }]
+          });
+          if (handle && await ext.isSameEntry(handle)) {
+            showStatus(S, 'Hai scelto il file di output: seleziona un file diverso.', 'err');
+            return;
+          }
+          extFile = await ext.getFile();
+        } else {
+          extFile = await extPromise;
+          if (!extFile) return;
+          if (!handle && extFile.name === window.selectedOutputFileName && extFile.size === (window.fallbackBuffer ? window.fallbackBuffer.byteLength : -1)) {
+            showStatus(S, 'Hai scelto il file di output: seleziona un file diverso.', 'err');
+            return;
+          }
+        }
+
+        showStatus(S, 'Importazione in corso...', 'ok');
+        const extWb = XLSX.read(new Uint8Array(await extFile.arrayBuffer()), { type: 'array' });
+        const imported = (XLSX.utils.sheet_to_json(extWb.Sheets[extWb.SheetNames[0]], { defval: '' }) || []).filter(hasData);
+        if (!imported.length) {
+          showStatus(S, `Il file "${escapeHtml(extFile.name)}" è vuoto o non contiene record validi.`, 'err');
+          return;
+        }
+
+        let wb = XLSX.utils.book_new(), sheetName = 'Dati_Raccolti', existing = [];
+        const outBuf = handle ? await (await handle.getFile()).arrayBuffer() : (window.fallbackBuffer || new ArrayBuffer(0));
+        if (outBuf.byteLength > 0) {
+          wb = XLSX.read(new Uint8Array(outBuf), { type: 'array' });
+          sheetName = wb.SheetNames[0] || sheetName;
+          existing = XLSX.utils.sheet_to_json(wb.Sheets[sheetName], { defval: '' }) || [];
+        }
+
+        const seen = new Set(existing.filter(hasData).map(recKey));
+        const merged = existing.slice();
+        let added = 0, dups = 0;
+        imported.forEach(r => {
+          const dk = dateKeyOf(r);
+          if (dk) r[dk] = normDate(r[dk]) || r[dk];
+          const k = recKey(r);
+          if (seen.has(k)) { dups++; return; }
+          seen.add(k); merged.push(r); added++;
+        });
+
+        renderResult(imported.length, added, dups);
+        if (added === 0) {
+          showStatus(S, `Nessun record nuovo in "${escapeHtml(extFile.name)}": il file di output non è stato modificato.`, 'ok');
+          return;
+        }
+
+        const ws = XLSX.utils.json_to_sheet(sortByDate(merged));
+        wb.Sheets[sheetName] = ws;
+        if (!wb.SheetNames.includes(sheetName)) XLSX.utils.book_append_sheet(wb, ws, sheetName);
+        const out = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
+
+        let bkNote = '';
+        if (outBuf.byteLength > 0) {
+          const bkName = handle ? handle.name : (window.spOutput ? window.spOutput.name : (window.selectedOutputFileName || 'Tracciamento_Ore.xlsx'));
+          const reason = `Prima dell'importazione di ${added} record da ${extFile.name}`;
+          const bkOk = await backupOutput(bkName, outBuf, reason);
+          bkNote = bkOk ? ' Copia di sicurezza della versione precedente creata.' : ' Attenzione: copia di sicurezza non riuscita.';
+        }
+
+        if (window.spOutput && window.SP && window.SP.configured()) {
+          await window.SP.uploadItem(window.spOutput.driveId, window.spOutput.parentId, window.spOutput.name, out);
+          window.fallbackBuffer = out;
+          showStatus(S, `Importati ${added} nuovi record da "${escapeHtml(extFile.name)}" in "${escapeHtml(window.spOutput.name)}" (SharePoint), riordinati per data.${bkNote}`, 'ok');
+        } else if (handle) {
+          const w = await handle.createWritable();
+          await w.write(out);
+          await w.close();
+          showStatus(S, `Importati ${added} nuovi record da "${escapeHtml(extFile.name)}" in "${escapeHtml(handle.name)}", riordinati per data.${bkNote}`, 'ok');
+        } else {
+          window.fallbackBuffer = out;
+          document.getElementById('import-deliver').style.display = 'block';
+          showStatus(S, `Importati ${added} nuovi record da "${escapeHtml(extFile.name)}", riordinati per data.${bkNote} Tocca il pulsante qui sotto per salvare o condividere il file aggiornato.`, 'ok');
+        }
+      } catch (err) {
+        if (err && err.name === 'AbortError') return;
+        showStatus('import-status', 'Errore durante l\'importazione: ' + escapeHtml(err.message), 'err');
+      }
+    });
+
+    document.getElementById('btn-import-deliver').addEventListener('click', async () => {
+      try {
+        const name = window.selectedOutputFileName || 'Tracciamento_Ore_Output.xlsx';
+        const how = await deliverBuffer(window.fallbackBuffer, name);
+        showStatus('import-status', how === 'shared' ? 'File inviato al foglio di condivisione: scegli la destinazione.' : 'File scaricato nella cartella Download.', 'ok');
+        document.getElementById('import-deliver').style.display = 'none';
+      } catch (err) {
+        if (err && err.name === 'AbortError') return;
+        showStatus('import-status', 'Errore: ' + escapeHtml(err.message), 'err');
+      }
+    });
+  })();
+</script>
+<script>
+/* ============================================================
+   SHAREPOINT / MICROSOFT GRAPH
+   ============================================================ */
+window.SP = (() => {
+  const REDIR = location.origin + location.pathname;
+  const SCOPES = ['User.Read', 'Files.ReadWrite', 'Sites.ReadWrite.All'];
+  let msalApp = null, account = null, mode = null, stack = [], selected = null;
+
+  const $ = id => document.getElementById(id);
+  const cfg = {
+    get tenant() { return localStorage.getItem('sp_tenant') || ''; },
+    get client() { return localStorage.getItem('sp_client') || ''; },
+    save(t, c) { localStorage.setItem('sp_tenant', t); localStorage.setItem('sp_client', c); }
+  };
+  const configured = () => !!(cfg.tenant && cfg.client);
+
+  function initMsal() {
+    if (msalApp) return msalApp;
+    msalApp = new msal.PublicClientApplication({
+      auth: {
+        clientId: cfg.client,
+        authority: `https://login.microsoftonline.com/${cfg.tenant}`,
+        redirectUri: REDIR,
+        postLogoutRedirectUri: REDIR,
+        navigateToLoginRequestUrl: false
+      },
+      cache: { cacheLocation: 'localStorage', storeAuthStateInCookie: false }
+    });
+    return msalApp;
+  }
+
+  async function getToken() {
+    const app = initMsal();
+    const accts = app.getAllAccounts();
+    if (accts.length) {
+      try {
+        const r = await app.acquireTokenSilent({ scopes: SCOPES, account: accts[0] });
+        account = r.account;
+        return r.accessToken;
+      } catch (e) { }
+    }
+    const r = await app.loginPopup({ scopes: SCOPES });
+    account = r.account;
+    return r.accessToken;
+  }
+
+  async function graph(path, opts = {}) {
+    const token = await getToken();
+    const r = await fetch('https://graph.microsoft.com/v1.0' + path, {
+      ...opts,
+      headers: { Authorization: 'Bearer ' + token, ...(opts.headers || {}) }
+    });
+    if (!r.ok) throw new Error(`Graph ${r.status}: ${(await r.text()).slice(0, 200)}`);
+    if (r.status === 204) return null;
+    const ct = r.headers.get('content-type') || '';
+    return ct.includes('json') ? r.json() : r;
+  }
+
+  const listSites     = async () => (await graph('/sites?search=*&$top=100')).value || [];
+  const listDrives    = async sid => (await graph(`/sites/${sid}/drives`)).value || [];
+  const listChildren  = async (did, iid) => {
+    const p = iid ? `/drives/${did}/items/${iid}/children` : `/drives/${did}/root/children`;
+    return ((await graph(p + '?$top=200')).value || [])
+      .filter(i => i.folder || /\.xlsx?$/i.test(i.name));
+  };
+
+  async function downloadItem(driveId, itemId) {
+    const r = await graph(`/drives/${driveId}/items/${itemId}/content`);
+    return await r.arrayBuffer();
+  }
+
+  async function uploadItem(driveId, parentId, filename, buffer) {
+    const p = parentId
+      ? `/drives/${driveId}/items/${parentId}:/${encodeURIComponent(filename)}:/content`
+      : `/drives/${driveId}/root:/${encodeURIComponent(filename)}:/content`;
+    return await graph(p, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' },
+      body: buffer
+    });
+  }
+
+  function open(which) {
+    mode = which; selected = null; stack = [];
+    $('sp-redir').textContent = REDIR;
+    $('dlg-sp').showModal();
+    if (!configured()) {
+      $('sp-setup').style.display = 'flex';
+      $('sp-browse').style.display = 'none';
+    } else {
+      $('sp-setup').style.display = 'none';
+      $('sp-browse').style.display = 'block';
+      boot();
+    }
+  }
+
+  async function boot() {
+    setList('Autenticazione a Microsoft Graph...');
+    renderBreadcrumb();
+    try {
+      await getToken();
+      await showSites();
+    } catch (e) {
+      setList('Errore di autenticazione: ' + escapeHtml(e.message));
+    }
+  }
+
+  function setList(html) { $('sp-list').innerHTML = html; }
+
+  function row({ icon, name, meta, onClick, selectable }) {
+    const div = document.createElement('div');
+    div.className = 'sp-item';
+    div.innerHTML = `<i class="${icon}"></i><span class="sp-name">${escapeHtml(name)}</span><span class="sp-meta">${escapeHtml(meta || '')}</span>`;
+    if (selectable) {
+      div.addEventListener('click', () => {
+        document.querySelectorAll('.sp-item.sel').forEach(e => e.classList.remove('sel'));
+        div.classList.add('sel');
+        selected = selectable;
+        $('sp-pick').disabled = false;
+      });
+    } else if (onClick) {
+      div.addEventListener('click', onClick);
+    }
+    return div;
+  }
+
+  function renderItems(items) {
+    const list = $('sp-list'); list.innerHTML = '';
+    if (!items.length) { list.innerHTML = '<div class="hint" style="padding:16px;">Nessun elemento.</div>'; return; }
+    items.forEach(it => list.appendChild(it));
+  }
+
+  async function showSites() {
+    stack = [{ label: 'Siti', view: 'sites' }];
+    renderBreadcrumb(); setList('Caricamento siti...');
+    try {
+      const sites = await listSites();
+      const items = [
+        row({ icon: 'fa-solid fa-cloud', name: 'Il mio OneDrive', meta: 'Radice personale', onClick: showMyDrive })
+      ];
+      sites.forEach(s => items.push(row({
+        icon: 'fa-solid fa-globe',
+        name: s.displayName || s.name,
+        meta: s.webUrl || '',
+        onClick: () => showDrives(s.id, s.displayName || s.name)
+      })));
+      renderItems(items);
+    } catch (e) { setList('Errore: ' + escapeHtml(e.message)); }
+  }
+
+  async function showMyDrive() {
+    try {
+      const drive = await graph('/me/drive');
+      stack = [{ label: 'Siti', view: 'sites' }, { label: 'OneDrive', view: 'children', driveId: drive.id }];
+      showChildren(drive.id, null);
+    } catch (e) { setList('Errore: ' + escapeHtml(e.message)); }
+  }
+
+  async function showDrives(siteId, siteName) {
+    stack = [{ label: 'Siti', view: 'sites' }, { label: siteName, view: 'drives', siteId }];
+    renderBreadcrumb(); setList('Caricamento raccolte documenti...');
+    try {
+      const drives = await listDrives(siteId);
+      renderItems(drives.map(d => row({
+        icon: 'fa-solid fa-folder-tree',
+        name: d.name,
+        meta: d.description || '',
+        onClick: () => {
+          stack.push({ label: d.name, view: 'children', driveId: d.id });
+          showChildren(d.id, null);
+        }
+      })));
+    } catch (e) { setList('Errore: ' + escapeHtml(e.message)); }
+  }
+
+  async function showChildren(driveId, itemId) {
+    renderBreadcrumb(); setList('Caricamento...');
+    try {
+      const kids = await listChildren(driveId, itemId);
+      renderItems(kids.map(k => k.folder
+        ? row({
+            icon: 'fa-solid fa-folder', name: k.name, meta: 'Cartella',
+            onClick: () => {
+              stack.push({ label: k.name, view: 'children', driveId, itemId: k.id });
+              showChildren(driveId, k.id);
+            }
+          })
+        : row({
+            icon: 'fa-solid fa-file-excel', name: k.name,
+            meta: k.size ? IO.fmtSize(k.size) : '',
+            selectable: { driveId, itemId: k.id, name: k.name, parentId: itemId }
+          })
+      ));
+    } catch (e) { setList('Errore: ' + escapeHtml(e.message)); }
+  }
+
+  function renderBreadcrumb() {
+    const bc = $('sp-bc'); bc.innerHTML = '';
+    stack.forEach((s, i) => {
+      if (i) bc.appendChild(document.createTextNode(' › '));
+      const a = document.createElement('a');
+      a.textContent = s.label;
+      a.onclick = () => {
+        stack = stack.slice(0, i + 1);
+        if (s.view === 'sites') showSites();
+        else if (s.view === 'drives') showDrives(s.siteId, s.label);
+        else if (s.view === 'children') showChildren(s.driveId, s.itemId || null);
+      };
+      bc.appendChild(a);
+    });
+  }
+
+  async function pick() {
+    if (!selected) return;
+    $('sp-pick').disabled = true;
+    try {
+      const buf = await downloadItem(selected.driveId, selected.itemId);
+      $('dlg-sp').close();
+      handlePicked(mode, buf, selected);
+    } catch (e) {
+      alert('Errore download: ' + e.message);
+    } finally {
+      $('sp-pick').disabled = false;
+    }
+  }
+
+  function handlePicked(which, buffer, info) {
+    try {
+      if (which === 'liste') {
+        loadTemplateDataFromBuffer(buffer, info.name + ' (SharePoint)');
+        showStatus('file-config-status', `Liste caricate da SharePoint: "${info.name}".`, 'ok');
+      } else if (which === 'output') {
+        window.spOutput = { driveId: info.driveId, itemId: info.itemId, parentId: info.parentId, name: info.name };
+        destFileHandle = null;
+        window.fallbackBuffer = buffer;
+        window.selectedOutputFileName = info.name;
+        document.getElementById('label-dest-name').textContent = info.name + ' (SharePoint)';
+        document.getElementById('btn-reconnect-dest').style.display = 'none';
+        showStatus('file-config-status', `File di output SharePoint "${info.name}" collegato.`, 'ok');
+      } else if (which === 'stats') {
+        parseAndProcessStatsBuffer(buffer, info.name + ' (SharePoint)');
+      }
+    } catch (e) {
+      showStatus('file-config-status', 'Errore: ' + escapeHtml(e.message), 'err');
+    }
+  }
+
+  document.addEventListener('DOMContentLoaded', () => {
+    const dlg = $('dlg-sp');
+    if (!dlg) return;
+
+    $('sp-save-cfg').addEventListener('click', () => {
+      const t = $('sp-tenant').value.trim();
+      const c = $('sp-client').value.trim();
+      if (!t || !c) { alert('Inserisci Tenant e Client ID.'); return; }
+      cfg.save(t, c); msalApp = null;
+      $('sp-setup').style.display = 'none';
+      $('sp-browse').style.display = 'block';
+      boot();
+    });
+    $('sp-cancel').addEventListener('click', () => dlg.close());
+    $('sp-pick').addEventListener('click', pick);
+    $('sp-sites').addEventListener('click', showSites);
+    $('sp-user').addEventListener('click', showMyDrive);
+    $('sp-up').addEventListener('click', () => {
+      if (stack.length <= 1) return;
+      stack.pop();
+      const s = stack[stack.length - 1];
+      if (s.view === 'sites') showSites();
+      else if (s.view === 'drives') showDrives(s.siteId, s.label);
+      else if (s.view === 'children') showChildren(s.driveId, s.itemId || null);
+    });
+    $('sp-search').addEventListener('keydown', async e => {
+      if (e.key !== 'Enter') return;
+      const q = e.target.value.trim(); if (!q) return;
+      setList('Ricerca in corso...');
+      try {
+        const res = await graph(`/me/drive/root/search(q='${encodeURIComponent(q)}')?$top=100`);
+        const files = (res.value || []).filter(i => /\.xlsx?$/i.test(i.name));
+        renderItems(files.map(f => row({
+          icon: 'fa-solid fa-file-excel', name: f.name,
+          meta: f.parentReference && f.parentReference.path ? f.parentReference.path.replace('/drive/root:', '') : '',
+          selectable: {
+            driveId: f.parentReference.driveId, itemId: f.id, name: f.name,
+            parentId: f.parentReference.id
+          }
+        })));
+      } catch (err) { setList('Errore: ' + escapeHtml(err.message)); }
+    });
+
+    /* Aggancio pulsanti */
+    document.getElementById('btn-sp-load-liste')  ?.addEventListener('click', () => open('liste'));
+    document.getElementById('btn-sp-open-output') ?.addEventListener('click', () => open('output'));
+    document.getElementById('btn-sp-load-stats')  ?.addEventListener('click', () => open('stats'));
+  });
+
+  return { open, uploadItem, downloadItem, configured };
+})();
+</script>
+</body>
+</html>
