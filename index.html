@@ -1,0 +1,1566 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Tracciamento Ore - Dashboard</title>
+
+<!-- Foglio di Stile Esterno 1: Google Fonts (Inter) -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+<link href="https://fonts.googleapis.com/css2?family=Roboto+Flex:wght@300..800&display=swap" rel="stylesheet">
+
+<!-- Foglio di Stile Esterno 2: FontAwesome per le Icone -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+<!-- Fogli di Stile dell'Applicazione -->
+<style>
+  /* ============ MATERIAL YOU TOKENS (light) ============ */
+  :root {
+    color-scheme: light dark;
+    --m-primary:#4152b0; --m-on-primary:#fff; --m-primary-c:#dfe1ff; --m-on-primary-c:#00105c;
+    --m-secondary-c:#dfe1f6; --m-on-secondary-c:#171a2c;
+    --m-tertiary:#a8364b; --m-tertiary-c:#ffd9de; --m-on-tertiary-c:#3f0016;
+    --m-surface:#fbf8ff; --m-sc-low:#f4f3fb; --m-sc:#eeedf6; --m-sc-high:#e8e7f0;
+    --m-on-surface:#1b1b21; --m-on-variant:#46464f; --m-outline:#777680; --m-outline-v:#c7c5d0;
+    --m-glass:rgba(251,248,255,.72);
+    --ok-bg:#d6f2df; --ok:#0b5a30; --err-bg:#ffdad6; --err:#93000a;
+    --e1:0 1px 2px rgb(40 40 90/.10),0 1px 3px 1px rgb(40 40 90/.06);
+    --e2:0 1px 2px rgb(40 40 90/.12),0 2px 6px 2px rgb(40 40 90/.08);
+    --e3:0 4px 8px 3px rgb(40 40 90/.08),0 1px 3px rgb(40 40 90/.14),0 18px 40px -12px rgb(65 82 176/.28);
+    --ease:cubic-bezier(.2,0,0,1);
+    --r-xl:28px; --r-lg:20px; --r-md:16px;
+    /* alias di compatibilità (usati da markup/JS esistente) */
+    --bg:var(--m-surface); --surface:var(--m-sc-low); --ink:var(--m-on-surface); --muted:var(--m-on-variant); --line:var(--m-outline-v);
+    --brand:var(--m-tertiary); --action:var(--m-primary); --action-hover:var(--m-primary); --focus:var(--m-primary); --focus-soft:var(--m-primary-c);
+    --r-card:var(--r-xl); --r-ctl:var(--r-md); --shadow:var(--e1); --shadow-lg:var(--e3);
+    --primary:var(--m-primary); --primary-hover:var(--m-primary); --primary-light:var(--m-primary-c);
+    --accent:var(--m-tertiary); --accent-light:var(--m-tertiary-c); --border-color:var(--m-outline-v);
+    --text-main:var(--m-on-surface); --text-muted:var(--m-on-variant);
+    --status-ok-bg:var(--ok-bg); --status-ok-text:var(--ok); --status-err-bg:var(--err-bg); --status-err-text:var(--err);
+  }
+  @media (prefers-color-scheme:dark) {
+    :root {
+      --m-primary:#b9c3ff; --m-on-primary:#0b1f84; --m-primary-c:#2a3b9c; --m-on-primary-c:#dfe1ff;
+      --m-secondary-c:#41465c; --m-on-secondary-c:#dfe1f6;
+      --m-tertiary:#ffb2bd; --m-tertiary-c:#7d2a3c; --m-on-tertiary-c:#ffd9de;
+      --m-surface:#121318; --m-sc-low:#1b1b21; --m-sc:#1f1f25; --m-sc-high:#292a2f;
+      --m-on-surface:#e4e1e9; --m-on-variant:#c7c5d0; --m-outline:#91909a; --m-outline-v:#46464f;
+      --m-glass:rgba(18,19,24,.7);
+      --ok-bg:#12402a; --ok:#9be3b3; --err-bg:#5c1a15; --err:#ffb4ab;
+      --e1:0 1px 2px rgb(0 0 0/.4),0 1px 3px 1px rgb(0 0 0/.25);
+      --e2:0 1px 2px rgb(0 0 0/.45),0 2px 6px 2px rgb(0 0 0/.3);
+      --e3:0 4px 8px 3px rgb(0 0 0/.3),0 1px 3px rgb(0 0 0/.5),0 18px 40px -12px rgb(0 0 0/.6);
+    }
+  }
+
+  * { box-sizing:border-box; }
+  html,body { margin:0; padding:0; }
+  body { background:var(--m-surface); color:var(--m-on-surface); font-family:'Google Sans Flex','Google Sans','Roboto Flex','Manrope',system-ui,sans-serif; font-size:15px; line-height:1.55; min-height:100vh; display:flex; flex-direction:column; -webkit-font-smoothing:antialiased; }
+  body::before { content:""; position:fixed; inset:0; z-index:-1; pointer-events:none;
+    background:radial-gradient(60vmax 42vmax at 92% -10%,color-mix(in srgb,var(--m-primary) 17%,transparent),transparent 62%),
+               radial-gradient(48vmax 40vmax at -8% 35%,color-mix(in srgb,var(--m-tertiary) 11%,transparent),transparent 62%); }
+  :focus-visible { outline:3px solid var(--m-primary); outline-offset:2px; }
+
+  /* ============ HEADER (glass app bar) ============ */
+  .app-header { position:sticky; top:0; z-index:50; padding:max(10px,env(safe-area-inset-top)) 16px 0; }
+  .header-container { position:relative; isolation:isolate; max-width:1208px; margin:0 auto; padding:8px 12px 8px 18px; display:grid; grid-template-columns:auto 1fr auto; align-items:center; gap:20px; border:1px solid color-mix(in srgb,var(--m-outline-v) 70%,transparent); border-radius:var(--r-xl); box-shadow:var(--e2); }
+  .header-container::before { content:""; position:absolute; inset:0; z-index:-1; border-radius:inherit; background:var(--m-glass); -webkit-backdrop-filter:blur(24px) saturate(1.6); backdrop-filter:blur(24px) saturate(1.6); }
+  .brand { display:flex; align-items:center; }
+  .brand h1 { margin:0; font-size:1.2rem; font-weight:600; letter-spacing:-.005em; display:flex; align-items:center; gap:12px; }
+  .brand h1::before { content:"\f017"; font-family:"Font Awesome 6 Free"; font-weight:900; font-size:1rem; width:40px; height:40px; display:grid; place-items:center; border-radius:14px; background:var(--m-primary); color:var(--m-on-primary); }
+  .header-right { display:flex; align-items:center; gap:14px; }
+  .header-logo { height:48px; width:auto; display:block; background:#fff; padding:6px 12px; border-radius:16px; }
+  .count-pill { background:var(--m-secondary-c); color:var(--m-on-secondary-c); border-radius:999px; padding:8px 16px; font-size:.84rem; font-weight:600; white-space:nowrap; }
+
+  nav.tabs { justify-self:center; display:flex; gap:4px; background:var(--m-sc-high); padding:4px; border-radius:999px; }
+  nav.tabs button { position:relative; overflow:hidden; border:0; background:transparent; color:var(--m-on-variant); font:inherit; font-weight:600; font-size:.92rem; padding:10px 22px; border-radius:999px; cursor:pointer; display:flex; align-items:center; gap:8px; transition:all .3s var(--ease); }
+  nav.tabs button:hover { color:var(--m-on-surface); background:color-mix(in srgb,var(--m-on-surface) 8%,transparent); }
+  nav.tabs button.active { background:var(--m-primary-c); color:var(--m-on-primary-c); box-shadow:var(--e1); }
+
+  /* ============ LAYOUT ============ */
+  main { max-width:1240px; margin:0 auto; padding:24px 16px 56px; width:100%; flex:1; }
+  .col { min-width:0; }
+  .tab-panel { display:none; }
+  .tab-panel.active { display:block; animation:panelIn .4s var(--ease); }
+  #tab-inserimento.active { display:grid; grid-template-columns:340px 1fr; gap:20px; align-items:start; }
+  .side { position:sticky; top:104px; }
+  @keyframes panelIn { from { opacity:0; transform:translateY(10px); } to { opacity:1; transform:none; } }
+
+  /* ============ CARDS / WIDGETS ============ */
+  .panel, .filter-panel, .chart-card, .stat-card { background:color-mix(in srgb,var(--m-sc-low) 80%,transparent); -webkit-backdrop-filter:blur(18px); backdrop-filter:blur(18px); border:1px solid color-mix(in srgb,var(--m-outline-v) 60%,transparent); border-radius:var(--r-xl); box-shadow:var(--e1); transition:box-shadow .3s var(--ease),transform .3s var(--ease); }
+  .panel { padding:24px; margin-bottom:20px; }
+  .panel h2, .chart-card h3, .filter-title { margin:0 0 4px; font-size:1.1rem; font-weight:600; letter-spacing:-.005em; display:flex; align-items:center; gap:12px; }
+  .panel h2 i, .chart-card h3 i, .filter-title i { flex:none; width:36px; height:36px; display:grid; place-items:center; border-radius:12px; background:var(--m-primary-c); color:var(--m-on-primary-c); font-size:.85rem; }
+  .panel .hint { margin:2px 0 20px; color:var(--m-on-variant); font-size:.88rem; }
+
+  .file-item { border-radius:var(--r-lg); padding:14px 16px; margin-bottom:12px; background:var(--m-sc); }
+  .file-item small { display:block; color:var(--m-on-variant); font-size:.78rem; font-weight:600; }
+  .file-item .name { display:block; font-weight:600; word-break:break-all; margin:2px 0 12px; }
+  .file-item .btn { width:100%; margin-top:8px; }
+  details.fields-details { margin-top:14px; font-size:.88rem; }
+  details.fields-details summary { cursor:pointer; font-weight:600; color:var(--m-primary); padding:6px 0; }
+
+  /* ============ DIALOG: FILE DI OUTPUT ============ */
+  dialog.m-dialog { border:0; padding:0; border-radius:var(--r-xl); background:var(--m-surface); color:var(--m-on-surface); width:min(520px,calc(100vw - 32px)); max-height:calc(100dvh - 32px); box-shadow:var(--e3); overflow:auto; }
+  dialog.m-dialog[open] { animation:panelIn .3s var(--ease); }
+  dialog.m-dialog::backdrop { background:rgb(10 10 25/.45); -webkit-backdrop-filter:blur(4px); backdrop-filter:blur(4px); }
+  .dlg-body { padding:24px 24px 8px; }
+  .dlg-body h2 { margin:0 0 4px; font-size:1.15rem; font-weight:600; display:flex; align-items:center; gap:12px; }
+  .dlg-body h2 i { flex:none; width:36px; height:36px; display:grid; place-items:center; border-radius:12px; background:var(--m-primary-c); color:var(--m-on-primary-c); font-size:.85rem; }
+  .dlg-body .hint { margin:2px 0 20px; color:var(--m-on-variant); font-size:.88rem; }
+  .dlg-group { margin-bottom:18px; }
+  .dir-row { display:flex; gap:8px; align-items:stretch; }
+  .dir-display { flex:1; min-width:0; display:flex; align-items:center; gap:10px; padding:10px 16px; min-height:48px; border-radius:var(--r-md); background:var(--m-sc); box-shadow:inset 0 -1px 0 var(--m-outline); font-weight:600; }
+  .dir-display i { color:var(--m-primary); }
+  .dir-display span { overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .dir-display.empty span { color:var(--m-on-variant); font-weight:500; }
+  .dlg-actions { display:flex; justify-content:space-between; align-items:center; gap:12px; flex-wrap:wrap; padding:16px 24px 24px; }
+  .dlg-actions .right { display:flex; gap:8px; margin-left:auto; }
+  .btn-text { background:transparent; color:var(--m-primary); }
+  .btn[disabled] { opacity:.45; pointer-events:none; box-shadow:none; }
+  @media (max-width:520px) { .dir-row { flex-direction:column; } .dlg-actions .right { width:100%; } .dlg-actions .right .btn { flex:1; } }
+
+  /* ============ FORM ============ */
+  .row { display:flex; gap:12px; flex-wrap:wrap; align-items:center; }
+  label.field-label { display:block; font-size:.8rem; font-weight:600; color:var(--m-on-variant); margin:0 0 6px 4px; }
+  input[type=text],input[type=number],input[type=date],textarea,select { width:100%; padding:10px 16px; border:1px solid transparent; border-radius:var(--r-md); font:inherit; font-size:.94rem; background:var(--m-sc); color:var(--m-on-surface); transition:all .3s var(--ease); min-height:48px; box-shadow:inset 0 -1px 0 var(--m-outline); }
+  input:hover,select:hover,textarea:hover { background:var(--m-sc-high); }
+  input:focus,textarea:focus,select:focus { outline:none; background:var(--m-sc); border-color:var(--m-primary); box-shadow:0 0 0 3px color-mix(in srgb,var(--m-primary) 25%,transparent); }
+  input[type=file] { padding:7px 10px; }
+  input[type=file]::file-selector-button { border:0; background:var(--m-primary-c); color:var(--m-on-primary-c); font:inherit; font-weight:600; padding:8px 16px; border-radius:999px; margin-right:12px; cursor:pointer; }
+  textarea { resize:vertical; min-height:76px; }
+  .field-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(210px,1fr)); gap:18px 16px; margin-bottom:18px; }
+  .field-grid.three { grid-template-columns:1fr 1fr 2fr; }
+  .stepper { display:flex; gap:8px; }
+  .stepper input { text-align:center; font-weight:700; font-variant-numeric:tabular-nums; }
+  .chips { display:flex; gap:8px; flex-wrap:wrap; margin-top:10px; }
+  .date-row { display:flex; gap:8px; }
+  .check { display:flex; align-items:center; gap:10px; font-size:.88rem; color:var(--m-on-variant); cursor:pointer; }
+  .check input { width:20px; height:20px; min-height:0; padding:0; accent-color:var(--m-primary); box-shadow:none; }
+  .form-actions { display:flex; justify-content:space-between; align-items:center; gap:16px; flex-wrap:wrap; }
+  .field-error { color:var(--err); font-size:.88rem; font-weight:600; margin-top:12px; }
+
+  /* ============ BUTTONS (state layer + ripple) ============ */
+  .btn, .chip, .stepper button { position:relative; overflow:hidden; isolation:isolate; font:inherit; cursor:pointer; transition:all .3s var(--ease); }
+  .btn::before, .chip::before, .stepper button::before { content:""; position:absolute; inset:0; z-index:-1; background:currentColor; opacity:0; transition:opacity .2s var(--ease); }
+  .btn:hover::before, .chip:hover::before, .stepper button:hover::before { opacity:.08; }
+  .btn:active::before, .chip:active::before, .stepper button:active::before { opacity:.14; }
+  .btn:active, .chip:active, .stepper button:active { transform:scale(.96); }
+  .ripple { position:absolute; border-radius:50%; background:currentColor; opacity:.2; transform:scale(0); animation:ripple .6s var(--ease) forwards; pointer-events:none; }
+  @keyframes ripple { to { transform:scale(1); opacity:0; } }
+
+  .btn { display:inline-flex; align-items:center; justify-content:center; gap:10px; padding:10px 24px; min-height:48px; border-radius:999px; border:1px solid transparent; font-size:.92rem; font-weight:600; letter-spacing:.01em; }
+  .btn-primary, .btn-rust { background:var(--m-primary); color:var(--m-on-primary); box-shadow:var(--e1); }
+  .btn-primary:hover, .btn-rust:hover { box-shadow:var(--e2); transform:translateY(-1px); }
+  .btn-primary:active, .btn-rust:active { transform:scale(.96); }
+  .btn-outline { background:transparent; color:var(--m-primary); border-color:var(--m-outline); }
+  .btn-outline:hover { border-color:var(--m-primary); }
+  .ios-file-btn { border-color:var(--m-primary); color:var(--m-primary); }
+  .ios-file-btn i { font-size:1rem; }
+  @media (max-width:700px) {
+    .ios-file-btn { width:100%; }
+  }
+  .btn-icon-danger { min-height:38px; width:38px; padding:0; background:var(--err-bg); color:var(--err); }
+  .btn-icon-danger:hover { box-shadow:var(--e1); }
+
+  .stepper button { width:48px; min-width:48px; min-height:48px; border:0; border-radius:50%; background:var(--m-secondary-c); color:var(--m-on-secondary-c); font-size:1.2rem; font-weight:600; }
+  .chip { min-height:34px; padding:0 16px; border:1px solid var(--m-outline); border-radius:999px; background:transparent; color:var(--m-on-variant); font-size:.84rem; font-weight:600; }
+  .chip:hover { border-color:var(--m-primary); color:var(--m-primary); }
+  .date-row .chip { min-height:48px; padding:0 18px; background:var(--m-secondary-c); color:var(--m-on-secondary-c); border-color:transparent; }
+  .field-tag { display:inline-flex; align-items:center; gap:6px; background:var(--m-secondary-c); color:var(--m-on-secondary-c); padding:6px 14px; border-radius:999px; font-size:.8rem; font-weight:600; margin:6px 6px 0 0; }
+
+  /* ============ TABLE ============ */
+  .table-wrap { max-height:400px; overflow:auto; border:1px solid color-mix(in srgb,var(--m-outline-v) 70%,transparent); border-radius:var(--r-lg); background:var(--m-sc-low); }
+  table { width:100%; border-collapse:collapse; font-size:.88rem; text-align:left; }
+  th,td { padding:12px 16px; border-bottom:1px solid color-mix(in srgb,var(--m-outline-v) 60%,transparent); vertical-align:middle; }
+  th { background:var(--m-sc-high); color:var(--m-on-variant); font-weight:600; font-size:.8rem; position:sticky; top:0; z-index:5; white-space:nowrap; }
+  td strong { color:var(--m-primary); font-variant-numeric:tabular-nums; }
+  tbody tr { transition:background .2s var(--ease); }
+  tbody tr:hover { background:color-mix(in srgb,var(--m-primary) 7%,transparent); }
+  tbody tr:last-child td { border-bottom:0; }
+  .queue-footer { display:flex; justify-content:space-between; align-items:center; gap:14px; flex-wrap:wrap; margin-top:18px; }
+  .queue-total { font-weight:600; color:var(--m-on-variant); }
+  .queue-total span { font-size:1.9rem; font-weight:700; color:var(--m-primary); font-variant-numeric:tabular-nums; letter-spacing:-.02em; }
+
+  /* ============ STATUS / EMPTY ============ */
+  .status-msg { font-size:.88rem; padding:12px 16px; border-radius:var(--r-md); margin-top:14px; display:flex; align-items:flex-start; gap:10px; font-weight:500; animation:pop .35s var(--ease); }
+  @keyframes pop { from { opacity:0; transform:scale(.96) translateY(4px); } to { opacity:1; transform:none; } }
+  .status-ok { background:var(--ok-bg); color:var(--ok); }
+  .status-err { background:var(--err-bg); color:var(--err); }
+  .empty-state { text-align:center; padding:56px 20px; color:var(--m-on-variant); border-style:dashed; }
+  .empty-state .btn { margin-top:4px; }
+  .empty-icon { display:grid; place-items:center; width:88px; height:88px; margin:0 auto 18px; border-radius:32px; background:var(--m-primary-c); color:var(--m-on-primary-c); font-size:2rem; }
+
+  /* ============ STATISTICHE ============ */
+  .stat-cards { display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:16px; margin-bottom:20px; }
+  .stat-card { padding:22px 24px; display:flex; align-items:center; gap:18px; border-color:transparent; }
+  .stat-card:nth-child(1) { background:var(--m-primary-c); color:var(--m-on-primary-c); }
+  .stat-card:nth-child(2) { background:var(--m-tertiary-c); color:var(--m-on-tertiary-c); }
+  .stat-card:hover { box-shadow:var(--e3); transform:translateY(-2px); }
+  .stat-card .icon-box { width:56px; height:56px; border-radius:20px; background:color-mix(in srgb,currentColor 14%,transparent); color:inherit; display:grid; place-items:center; font-size:1.2rem; flex-shrink:0; }
+  .stat-card .num { font-size:2.2rem; font-weight:700; line-height:1.1; font-variant-numeric:tabular-nums; letter-spacing:-.02em; }
+  .stat-card .label { font-size:.86rem; color:inherit; opacity:.78; font-weight:600; }
+  .filter-panel { padding:20px 24px; margin-bottom:20px; }
+  .filter-title { margin-bottom:16px; }
+  .filter-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(180px,1fr)); gap:16px; }
+  .charts-stack { display:grid; grid-template-columns:1fr 1fr; gap:20px; }
+  .chart-card { padding:24px; min-width:0; }
+  .chart-card:first-child { grid-column:1/-1; }
+  .chart-card:hover { box-shadow:var(--e2); }
+  .chart-card h3 { margin-bottom:16px; }
+  .chart-container { position:relative; height:320px; width:100%; }
+
+  footer { text-align:center; color:var(--m-on-variant); font-size:.82rem; padding:24px 16px; }
+
+  /* ============ RESPONSIVE (mobile-first nav bar in basso) ============ */
+  @media (max-width:960px) {
+    #tab-inserimento.active { grid-template-columns:1fr; }
+    .side { position:static; }
+    .header-container { grid-template-columns:1fr auto; gap:8px; padding:8px 10px 8px 14px; }
+    .header-logo { height:40px; }
+    nav.tabs { position:fixed; left:12px; right:12px; bottom:max(12px,env(safe-area-inset-bottom)); z-index:60; justify-self:auto; padding:8px; border-radius:28px; background:var(--m-glass); -webkit-backdrop-filter:blur(24px) saturate(1.6); backdrop-filter:blur(24px) saturate(1.6); border:1px solid color-mix(in srgb,var(--m-outline-v) 70%,transparent); box-shadow:var(--e3); }
+    nav.tabs button { flex:1; flex-direction:column; gap:4px; font-size:.76rem; padding:6px 4px; border-radius:20px; }
+    nav.tabs button:hover, nav.tabs button.active { background:transparent; box-shadow:none; }
+    nav.tabs button i { padding:5px 22px; border-radius:999px; font-size:1rem; transition:all .3s var(--ease); }
+    nav.tabs button.active i { background:var(--m-primary-c); color:var(--m-on-primary-c); }
+    nav.tabs button.active { color:var(--m-on-surface); }
+    footer { padding-bottom:calc(104px + env(safe-area-inset-bottom)); }
+  }
+  @media (max-width:900px) { .charts-stack { grid-template-columns:1fr; } }
+  @media (max-width:700px) {
+    .field-grid.three { grid-template-columns:1fr; }
+    .panel, .chart-card, .filter-panel { padding:20px 18px; border-radius:24px; }
+    .brand h1 { font-size:1.05rem; }
+    .stat-card .num { font-size:1.9rem; }
+    .form-actions .btn, .queue-footer .row, .queue-footer .row .btn { width:100%; }
+  }
+  #tab-importa .panel { max-width:760px; }
+  #import-result { margin-top:20px; max-width:1000px; }
+  #import-result:empty { display:none; }
+  #import-result .stat-card:nth-child(2) { background:var(--ok-bg); color:var(--ok); }
+  @media (prefers-reduced-motion:reduce) { * { transition:none !important; animation:none !important; } }
+</style>
+
+<!-- Librerie Javascript Esterne -->
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+
+<header class="app-header">
+  <div class="header-container">
+    <div class="brand">
+      <h1>Tracciamento ore</h1>
+    </div>
+    <nav class="tabs" role="tablist" aria-label="Sezioni">
+      <button class="tab-btn active" role="tab" aria-selected="true" data-tab="tab-inserimento"><i class="fa-solid fa-pen-to-square"></i> Inserimento</button>
+      <button class="tab-btn" role="tab" aria-selected="false" data-tab="tab-statistiche"><i class="fa-solid fa-chart-pie"></i> Statistiche</button>
+      <button class="tab-btn" role="tab" aria-selected="false" data-tab="tab-importa"><i class="fa-solid fa-file-import"></i> Importa</button>
+    </nav>
+    <div class="header-right">
+      <span id="record-count-header" class="count-pill"><i class="fa-solid fa-list-check"></i> 0 in coda</span>
+      <img class="header-logo" src="./mitsubishi_0.png" alt="Mitsubishi Electric" onerror="this.style.display='none'">
+    </div>
+  </div>
+</header>
+
+<main>
+
+  <!-- TAB 1: INSERIMENTO -->
+  <section id="tab-inserimento" class="tab-panel active">
+
+    <div class="side">
+    <div class="panel">
+      <h2><i class="fa-solid fa-gear"></i> File di lavoro</h2>
+      <p class="hint">Carica le liste delle opzioni e scegli il file Excel in cui salvare le ore.</p>
+
+      <div class="file-item">
+        <small>Liste opzioni</small>
+        <span class="name" id="label-template-name">Non configurato</span>
+        <button class="btn btn-primary" id="btn-load-root-excel"><i class="fa-solid fa-globe"></i> Carica Liste.xlsx</button>
+      </div>
+      <div class="file-item">
+        <small>File di destinazione</small>
+        <span class="name" id="label-dest-name">Non configurato</span>
+        <button class="btn btn-outline" id="btn-load-local-dest"><i class="fa-solid fa-file-excel"></i> Scegli o crea file di output</button>
+        <button class="btn btn-outline" id="btn-reconnect-dest" style="display:none;"><i class="fa-solid fa-plug"></i> Riconnetti file salvato</button>
+        <input type="file" id="input-local-dest-fallback" accept=".xlsx,.xls" style="display:none;">
+      </div>
+
+      <div id="file-config-status" role="status" aria-live="polite"></div>
+      <details class="fields-details" id="fields-details" style="display:none;"><summary>Campi rilevati</summary><div id="fields-preview"></div></details>
+    </div>
+    </div>
+    <div class="col">
+
+    <!-- FORM INSERIMENTO RECORD -->
+    <div class="panel" id="form-panel" style="display:none;">
+      <h2><i class="fa-solid fa-plus"></i> Nuovo record</h2>
+      <p class="hint">Compila i campi e premi Invio per aggiungere il record alla coda.</p>
+      <div id="dynamic-fields" class="field-grid"></div>
+      <div class="field-grid three">
+        <div>
+          <label class="field-label" for="field-data">Data</label>
+          <div class="date-row"><input type="date" id="field-data"><button type="button" class="chip" id="btn-today">Oggi</button></div>
+        </div>
+        <div>
+          <label class="field-label" for="field-ore">Ore</label>
+          <div class="stepper">
+            <button type="button" id="ore-minus" aria-label="Diminuisci di un quarto d'ora">&minus;</button>
+            <input type="number" id="field-ore" step="0.25" min="0" inputmode="decimal" placeholder="0">
+            <button type="button" id="ore-plus" aria-label="Aumenta di un quarto d'ora">+</button>
+          </div>
+          <div class="chips" aria-label="Valori rapidi">
+            <button type="button" class="chip" data-ore="0.5">0,5</button><button type="button" class="chip" data-ore="1">1</button><button type="button" class="chip" data-ore="2">2</button><button type="button" class="chip" data-ore="4">4</button><button type="button" class="chip" data-ore="8">8</button>
+          </div>
+        </div>
+        <div>
+          <label class="field-label" for="field-note">Note</label>
+          <textarea id="field-note" placeholder="Note facoltative (Ctrl+Invio per aggiungere)"></textarea>
+        </div>
+      </div>
+      <div class="form-actions">
+        <label class="check"><input type="checkbox" id="keep-selections"> Mantieni le selezioni dopo l'aggiunta</label>
+        <button class="btn btn-primary" id="btn-add-record"><i class="fa-solid fa-plus"></i> Aggiungi alla coda</button>
+      </div>
+      <div id="form-error" class="field-error" role="alert"></div>
+    </div>
+
+    <!-- TABELLA RECORD -->
+    <div class="panel" id="records-panel" style="display:none;">
+      <h2><i class="fa-solid fa-list"></i> Coda di salvataggio</h2>
+      <p class="hint">Elenco dei dati pronti per l'inserimento nel file Excel.</p>
+      <div class="table-wrap">
+        <table id="records-table">
+          <thead><tr id="records-thead-row"></tr></thead>
+          <tbody id="records-tbody"></tbody>
+        </table>
+      </div>
+      <div class="queue-footer">
+        <div class="queue-total"><span id="queue-total">0</span> ore totali</div>
+        <div class="row">
+          <button class="btn btn-outline" id="btn-clear-queue"><i class="fa-solid fa-eraser"></i> Svuota coda</button>
+          <button class="btn btn-rust" id="btn-export-excel"><i class="fa-solid fa-floppy-disk"></i> Salva su file Excel</button>
+        </div>
+      </div>
+      <div id="export-status"></div>
+    </div>
+
+    <div class="panel empty-state" id="no-fields-msg">
+      <i class="fa-solid fa-folder-open empty-icon"></i>
+      <p>Per iniziare, carica le liste delle opzioni.</p>
+      <button class="btn btn-primary" onclick="document.getElementById('btn-load-root-excel').click()"><i class="fa-solid fa-globe"></i> Carica Liste.xlsx</button>
+    </div>
+
+      </div>
+  </section>
+
+  <!-- TAB 2: STATISTICHE -->
+  <section id="tab-statistiche" class="tab-panel">
+    <div class="panel">
+      <h2><i class="fa-solid fa-database"></i> Origine Dati Statistiche</h2>
+      <p class="hint">Analizza i dati dal file memorizzato o caricane uno nuovo.</p>
+      <div class="row">
+        <button class="btn btn-primary" id="btn-load-saved-dest"><i class="fa-solid fa-arrows-rotate"></i> Carica da File Output Memorizzato</button>
+        <div style="flex:1; min-width:220px;">
+          <label class="field-label" for="stats-file">Scegli un altro file Excel (Locale)</label>
+          <input type="file" id="stats-file" accept=".xlsx,.xls">
+        </div>
+      </div>
+      <div id="stats-status"></div>
+    </div>
+
+    <div id="stats-content" style="display:none;">
+      
+      <!-- PANNELLO FILTRI MESE E ANNO -->
+      <div class="filter-panel">
+        <h3 class="filter-title"><i class="fa-solid fa-filter"></i> Filtra per Periodo</h3>
+        <div class="filter-grid">
+          <div>
+            <label class="field-label" for="filter-mese">Mese</label>
+            <select id="filter-mese">
+              <option value="ALL">Tutti i Mesi</option>
+              <option value="1">Gennaio</option>
+              <option value="2">Febbraio</option>
+              <option value="3">Marzo</option>
+              <option value="4">Aprile</option>
+              <option value="5">Maggio</option>
+              <option value="6">Giugno</option>
+              <option value="7">Luglio</option>
+              <option value="8">Agosto</option>
+              <option value="9">Settembre</option>
+              <option value="10">Ottobre</option>
+              <option value="11">Novembre</option>
+              <option value="12">Dicembre</option>
+            </select>
+          </div>
+          <div>
+            <label class="field-label" for="filter-anno">Anno</label>
+            <select id="filter-anno">
+              <option value="ALL">Tutti gli Anni</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <div class="stat-cards" id="stat-summary-cards"></div>
+
+      <!-- GRAFICI IMPILATI A LARGHEZZA INTERA -->
+      <div class="charts-stack">
+        <div class="chart-card">
+          <h3><i class="fa-solid fa-people-group"></i> Ore Lavorate per Cliente e Tecnico</h3>
+          <div class="chart-container"><canvas id="chart-cliente-tecnico"></canvas></div>
+        </div>
+        <div class="chart-card">
+          <h3><i class="fa-solid fa-user"></i> Ore Totali per Nome / Risorsa</h3>
+          <div class="chart-container"><canvas id="chart-nome"></canvas></div>
+        </div>
+        <div class="chart-card">
+          <h3><i class="fa-solid fa-building"></i> Ore Totali per Cliente</h3>
+          <div class="chart-container"><canvas id="chart-cliente"></canvas></div>
+        </div>
+        <div class="chart-card">
+          <h3><i class="fa-solid fa-layer-group"></i> Ore Totali per Area</h3>
+          <div class="chart-container"><canvas id="chart-area"></canvas></div>
+        </div>
+        <div class="chart-card">
+          <h3><i class="fa-solid fa-briefcase"></i> Ore Totali per Servizio</h3>
+          <div class="chart-container"><canvas id="chart-servizio"></canvas></div>
+        </div>
+        <div class="chart-card">
+          <h3><i class="fa-solid fa-chart-pie"></i> Ripartizione Ore per Modalità</h3>
+          <div class="chart-container"><canvas id="chart-modalita"></canvas></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel empty-state" id="no-stats-msg">
+      <i class="fa-solid fa-chart-column empty-icon"></i>
+      <p>Scegli una fonte dati qui sopra per generare i grafici.</p>
+    </div>
+  </section>
+
+
+  <!-- TAB 3: IMPORTA FILE ESTERNO -->
+  <section id="tab-importa" class="tab-panel">
+    <div class="panel">
+      <h2><i class="fa-solid fa-file-import"></i> Importa file esterno</h2>
+      <p class="hint">Scegli un file Excel diverso da quello di output. I record non ancora presenti vengono aggiunti al file di output e tutti i record vengono riordinati per data.</p>
+      <div class="file-item">
+        <small>File di destinazione</small>
+        <span class="name" id="import-dest-name">Non configurato</span>
+      </div>
+      <button class="btn btn-primary" id="btn-import-external"><i class="fa-solid fa-file-arrow-up"></i> Scegli file Excel esterno</button>
+      <div id="import-status" role="status" aria-live="polite"></div>
+    </div>
+    <div class="stat-cards" id="import-result"></div>
+  </section>
+
+</main>
+
+<footer>
+  <i class="fa-solid fa-shield-halved"></i> Strumento locale &mdash; nessun dato viene inviato a server esterni. Funziona offline nel browser.
+</footer>
+
+<!-- Dialog: scelta cartella e file di output -->
+<dialog class="m-dialog" id="dest-dialog" aria-labelledby="dest-dlg-title">
+  <div class="dlg-body">
+    <h2 id="dest-dlg-title"><i class="fa-solid fa-folder-tree"></i> File di output</h2>
+    <p class="hint">Sfoglia le cartelle del computer, poi scegli un file esistente oppure inserisci il nome di uno nuovo.</p>
+
+    <div class="dlg-group">
+      <label class="field-label">Cartella di destinazione</label>
+      <div class="dir-row">
+        <div class="dir-display empty" id="dest-dir-display"><i class="fa-solid fa-folder"></i><span id="dest-dir-name">Nessuna cartella selezionata</span></div>
+        <button type="button" class="btn btn-outline" id="btn-dest-browse"><i class="fa-solid fa-folder-open"></i> Sfoglia...</button>
+      </div>
+    </div>
+
+    <div class="dlg-group" id="dest-existing-wrap" style="display:none;">
+      <label class="field-label">File Excel già presenti nella cartella</label>
+      <div class="chips" id="dest-existing"></div>
+    </div>
+
+    <div class="dlg-group">
+      <label class="field-label" for="dest-file-name">Nome del file</label>
+      <input type="text" id="dest-file-name" value="Tracciamento_Ore.xlsx" autocomplete="off" spellcheck="false">
+    </div>
+
+    <div id="dest-dlg-status" role="status" aria-live="polite"></div>
+  </div>
+  <div class="dlg-actions">
+    <button type="button" class="btn btn-text" id="btn-dest-system"><i class="fa-solid fa-window-restore"></i> Selettore di sistema</button>
+    <div class="right">
+      <button type="button" class="btn btn-outline" id="btn-dest-cancel">Annulla</button>
+      <button type="button" class="btn btn-primary" id="btn-dest-confirm" disabled><i class="fa-solid fa-check"></i> Conferma</button>
+    </div>
+  </div>
+</dialog>
+
+<script>
+  let dynamicFields = [];
+  let fieldOptionsMap = {};
+  let collectedRecords = [];
+  
+  let destFileHandle = null;
+
+  Chart.defaults.font.family = "'Roboto Flex', 'Manrope', system-ui, sans-serif";
+  Chart.defaults.color = getComputedStyle(document.documentElement).getPropertyValue('--m-on-variant').trim() || '#5b6678';
+  Chart.defaults.plugins.legend.labels.usePointStyle = true;
+  Chart.defaults.plugins.tooltip.backgroundColor = '#12151c';
+  Chart.defaults.plugins.tooltip.padding = 10;
+  Chart.defaults.plugins.tooltip.cornerRadius = 8;
+  let chartInstances = {};
+  let rawStatsRecords = [];
+
+  function openDB() {
+    return new Promise((resolve, reject) => {
+      const request = indexedDB.open('TracciamentoOreDB', 2);
+      request.onupgradeneeded = (e) => {
+        const db = e.target.result;
+        if (!db.objectStoreNames.contains('fileHandles')) {
+          db.createObjectStore('fileHandles');
+        }
+      };
+      request.onsuccess = () => resolve(request.result);
+      request.onerror = () => reject(request.error);
+    });
+  }
+
+  async function saveHandle(key, handle) {
+    const db = await openDB();
+    const tx = db.transaction('fileHandles', 'readwrite');
+    tx.objectStore('fileHandles').put(handle, key);
+    return tx.complete;
+  }
+
+  async function getHandle(key) {
+    const db = await openDB();
+    return new Promise((resolve) => {
+      const tx = db.transaction('fileHandles', 'readonly');
+      const req = tx.objectStore('fileHandles').get(key);
+      req.onsuccess = () => resolve(req.result);
+      req.onerror = () => resolve(null);
+    });
+  }
+
+  window.addEventListener('DOMContentLoaded', async () => {
+    const savedDest = await getHandle('destFile');
+    if (savedDest) {
+      document.getElementById('btn-reconnect-dest').style.display = 'inline-flex';
+      document.getElementById('label-dest-name').textContent = `${savedDest.name} (salvato in IndexedDB)`;
+    }
+
+    document.getElementById('filter-mese').addEventListener('change', updateFilteredStats);
+    document.getElementById('filter-anno').addEventListener('change', updateFilteredStats);
+  });
+
+  /* 1. CARICAMENTO SOLAMENTE DI LISTE.XLSX DALLA ROOT */
+  document.getElementById('btn-load-root-excel').addEventListener('click', async () => {
+    try {
+      showStatus('file-config-status', 'Caricamento del file Liste.xlsx dalla root...', 'ok');
+      const resp = await fetch('./Liste.xlsx');
+      if (!resp.ok) {
+        throw new Error(`Impossibile trovare Liste.xlsx nella root (HTTP ${resp.status})`);
+      }
+      const arrayBuffer = await resp.arrayBuffer();
+      loadTemplateDataFromBuffer(arrayBuffer, 'Liste.xlsx (Root)');
+    } catch (err) {
+      showStatus('file-config-status', 'Errore caricamento file Liste.xlsx da root: ' + err.message, 'err');
+    }
+  });
+
+  /* 2. SCELTA/CREAZIONE FILE DI OUTPUT: NAVIGAZIONE NELLE CARTELLE + NOME FILE */
+  const destDlg = document.getElementById('dest-dialog');
+  const destNameInput = document.getElementById('dest-file-name');
+  let dlgDirHandle = null;
+
+  function applyDestSelection(fileHandle, dirHandle, note) {
+    destFileHandle = fileHandle;
+    saveHandle('destFile', fileHandle);
+    if (dirHandle) saveHandle('destDir', dirHandle);
+    const where = dirHandle ? `${dirHandle.name}/${fileHandle.name}` : fileHandle.name;
+    document.getElementById('label-dest-name').textContent = `${where} (${note})`;
+    document.getElementById('btn-reconnect-dest').style.display = 'inline-flex';
+  }
+
+  function clearDlgStatus() { const el = document.getElementById('dest-dlg-status'); el.className = ''; el.innerHTML = ''; }
+
+  async function listXlsxIn(dir) {
+    const names = [];
+    for await (const [name, h] of dir.entries()) {
+      if (h.kind === 'file' && /\.xlsx$/i.test(name) && !name.startsWith('~$')) names.push(name);
+    }
+    return names.sort((a, b) => a.localeCompare(b, 'it'));
+  }
+
+  async function setDialogDir(dir) {
+    dlgDirHandle = dir || null;
+    const disp = document.getElementById('dest-dir-display');
+    disp.classList.toggle('empty', !dir);
+    document.getElementById('dest-dir-name').textContent = dir ? dir.name : 'Nessuna cartella selezionata';
+    document.getElementById('btn-dest-confirm').disabled = !dir;
+
+    const wrap = document.getElementById('dest-existing-wrap');
+    const box = document.getElementById('dest-existing');
+    box.innerHTML = '';
+    wrap.style.display = 'none';
+    if (!dir) return;
+    try {
+      const names = await listXlsxIn(dir);
+      names.forEach(n => {
+        const b = document.createElement('button');
+        b.type = 'button'; b.className = 'chip'; b.textContent = n;
+        b.addEventListener('click', () => { destNameInput.value = n; });
+        box.appendChild(b);
+      });
+      if (names.length) wrap.style.display = 'block';
+    } catch (e) { /* elenco non disponibile: si può comunque scrivere il nome */ }
+  }
+
+  async function openDestDialog() {
+    clearDlgStatus();
+    destNameInput.value = (destFileHandle && destFileHandle.name) || window.selectedOutputFileName || 'Tracciamento_Ore.xlsx';
+    destDlg.showModal();
+
+    // Riparte dall'ultima cartella usata, se l'accesso è ancora concesso
+    let dir = dlgDirHandle;
+    if (!dir) {
+      try {
+        dir = await getHandle('destDir');
+        if (dir && await dir.queryPermission({ mode: 'readwrite' }) !== 'granted' &&
+            await dir.requestPermission({ mode: 'readwrite' }) !== 'granted') dir = null;
+      } catch (e) { dir = null; }
+    }
+    await setDialogDir(dir);
+  }
+
+  document.getElementById('btn-dest-browse').addEventListener('click', async () => {
+    try {
+      const opts = { id: 'tracciamento-ore-output', mode: 'readwrite' };
+      opts.startIn = dlgDirHandle || 'documents';
+      const dir = await window.showDirectoryPicker(opts);
+      clearDlgStatus();
+      await setDialogDir(dir);
+    } catch (err) {
+      if (err.name !== 'AbortError') {
+        showStatus('dest-dlg-status', 'Impossibile usare questa cartella (alcune cartelle di sistema sono protette dal browser): ' + escapeHtml(err.message), 'err');
+      }
+    }
+  });
+
+  document.getElementById('btn-dest-confirm').addEventListener('click', async () => {
+    const S = 'dest-dlg-status';
+    if (!dlgDirHandle) { showStatus(S, 'Scegli prima una cartella.', 'err'); return; }
+    let name = destNameInput.value.trim().replace(/[\\/:*?"<>|]/g, '_');
+    if (!name) { showStatus(S, 'Inserisci il nome del file.', 'err'); return; }
+    if (!/\.xlsx$/i.test(name)) name += '.xlsx';
+    try {
+      if (await dlgDirHandle.queryPermission({ mode: 'readwrite' }) !== 'granted' &&
+          await dlgDirHandle.requestPermission({ mode: 'readwrite' }) !== 'granted') {
+        showStatus(S, 'Autorizzazione negata per la scrittura nella cartella.', 'err');
+        return;
+      }
+      let existed = true;
+      let fh;
+      try { fh = await dlgDirHandle.getFileHandle(name); }
+      catch (e) { existed = false; fh = await dlgDirHandle.getFileHandle(name, { create: true }); }
+
+      applyDestSelection(fh, dlgDirHandle, existed ? 'Locale Output' : 'nuovo file');
+      showStatus('file-config-status', existed
+        ? `File di output "${escapeHtml(name)}" selezionato nella cartella "${escapeHtml(dlgDirHandle.name)}".`
+        : `File di output "${escapeHtml(name)}" creato nella cartella "${escapeHtml(dlgDirHandle.name)}".`, 'ok');
+      destDlg.close();
+    } catch (err) {
+      showStatus(S, 'Errore nella selezione del file: ' + escapeHtml(err.message), 'err');
+    }
+  });
+
+  document.getElementById('btn-dest-cancel').addEventListener('click', () => destDlg.close());
+  destDlg.addEventListener('click', (e) => { if (e.target === destDlg) destDlg.close(); });
+  destNameInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') document.getElementById('btn-dest-confirm').click(); });
+  document.getElementById('btn-dest-system').addEventListener('click', () => { destDlg.close(); pickDestWithSystemDialog(); });
+
+  document.getElementById('btn-load-local-dest').addEventListener('click', () => {
+    if ('showDirectoryPicker' in window) openDestDialog();
+    else pickDestWithSystemDialog();
+  });
+
+  /* Selettore di sistema (salva con nome) e fallback per browser senza File System Access API */
+  async function pickDestWithSystemDialog() {
+    if ('showOpenFilePicker' in window) {
+      try {
+        // Il selettore di salvataggio permette di scegliere un file esistente oppure di crearne uno nuovo col nome desiderato
+        const dHandle = await window.showSaveFilePicker({
+          suggestedName: 'Tracciamento_Ore.xlsx',
+          types: [{
+            description: 'File Excel Destinazione',
+            accept: { 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet': ['.xlsx'] }
+          }]
+        });
+        applyDestSelection(dHandle, null, 'Locale Output');
+        showStatus('file-config-status', `File locale di output \"${dHandle.name}\" configurato con successo!`, 'ok');
+      } catch (err) {
+        if (err.name !== 'AbortError') {
+          showStatus('file-config-status', 'Errore nella selezione del file locale: ' + err.message, 'err');
+        }
+      }
+    } else {
+      // Fallback per browser senza API File System Access: si sceglie solo il nome del file da scaricare
+      let name = window.prompt('Nome del file di output da creare:', window.selectedOutputFileName || 'Tracciamento_Ore.xlsx');
+      if (!name || !name.trim()) return;
+      name = name.trim().replace(/[\\/:*?"<>|]/g, '_');
+      if (!/\.xlsx$/i.test(name)) name += '.xlsx';
+      destFileHandle = null;
+      window.selectedOutputFileName = name;
+      document.getElementById('label-dest-name').textContent = `${name} (verrà scaricato al salvataggio)`;
+      showStatus('file-config-status', `Nome del file di output impostato: \"${name}\".`, 'ok');
+    }
+  }
+
+  document.getElementById('input-local-dest-fallback').addEventListener('change', (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    destFileHandle = null; // Gestione tramite download diretto se non supportato il FileHandle
+    window.iosOutputFile = file;
+    window.selectedOutputFileName = file.name;
+    document.getElementById('label-dest-name').textContent = `${file.name} (file selezionato)`;
+    showStatus('file-config-status', `File locale di destinazione "${file.name}" impostato. Al salvataggio verrà scaricata una copia aggiornata.`, 'ok');
+  });
+
+  // Selettore nativo iOS/iPadOS (Safari/Chrome): apre l'app File e le risorse disponibili.
+  document.getElementById('btn-ios-output-file').addEventListener('click', () => {
+    document.getElementById('input-ios-output-file').click();
+  });
+
+  document.getElementById('input-ios-output-file').addEventListener('change', (e) => {
+    const file = e.target.files && e.target.files[0];
+    if (!file) return;
+    destFileHandle = null;
+    window.iosOutputFile = file;
+    window.selectedOutputFileName = file.name;
+    document.getElementById('label-dest-name').textContent = `${file.name} (iPhone/iPad)`;
+    showStatus('file-config-status',
+      `File "${escapeHtml(file.name)}" selezionato dal dispositivo. Su iPhone/iPad il salvataggio genera una copia aggiornata da scaricare.`,
+      'ok');
+    e.target.value = '';
+  });
+
+  /* 3. RICONNESSIONE AL FILE DI OUTPUT MEMORIZZATO */
+  document.getElementById('btn-reconnect-dest').addEventListener('click', async () => {
+    try {
+      const dHandle = await getHandle('destFile');
+      if (dHandle) {
+        if (await dHandle.queryPermission({ mode: 'readwrite' }) !== 'granted') {
+          await dHandle.requestPermission({ mode: 'readwrite' });
+        }
+        destFileHandle = dHandle;
+        document.getElementById('label-dest-name').textContent = `${dHandle.name} (Riconnesso)`;
+        showStatus('file-config-status', 'Connessione al file di output ripristinata!', 'ok');
+      }
+    } catch (err) {
+      showStatus('file-config-status', 'Errore riconnessione file output: ' + err.message, 'err');
+    }
+  });
+
+  /* ESTRAZIONE DATI PERI MENU A TENDINA DA LISTE.XLSX */
+  function loadTemplateDataFromBuffer(arrayBuffer, sourceLabel) {
+    const workbook = XLSX.read(new Uint8Array(arrayBuffer), {type: 'array'});
+    const firstSheetName = workbook.SheetNames[0];
+    const worksheet = workbook.Sheets[firstSheetName];
+    
+    const jsonData = XLSX.utils.sheet_to_json(worksheet, {header: 1});
+    if (!jsonData || jsonData.length === 0) {
+      showStatus('file-config-status', 'Il file Liste.xlsx non contiene dati validi.', 'err');
+      return;
+    }
+
+    const headers = jsonData[0].map(h => String(h).trim()).filter(h => h.length > 0);
+    
+    fieldOptionsMap = {};
+    headers.forEach((h, colIndex) => {
+      const values = new Set();
+      for (let r = 1; r < jsonData.length; r++) {
+        if (jsonData[r] && jsonData[r][colIndex] !== undefined && jsonData[r][colIndex] !== null) {
+          const val = String(jsonData[r][colIndex]).trim();
+          if (val) values.add(val);
+        }
+      }
+      fieldOptionsMap[h] = Array.from(values);
+    });
+
+    document.getElementById('label-template-name').textContent = sourceLabel;
+    setupFields(headers);
+    showStatus('file-config-status', `Menu opzioni configurati con successo da ${sourceLabel}!`, 'ok');
+  }
+
+  function setupFields(fields) {
+    dynamicFields = fields;
+    
+    const previewEl = document.getElementById('fields-preview');
+    previewEl.innerHTML = fields.map(f => `<span class="field-tag">${escapeHtml(f)} (${(fieldOptionsMap[f]||[]).length})</span>`).join('');
+    document.getElementById('fields-details').style.display = 'block';
+
+    const container = document.getElementById('dynamic-fields');
+    container.innerHTML = '';
+    
+    fields.forEach((f, idx) => {
+      const div = document.createElement('div');
+      const options = fieldOptionsMap[f] || [];
+      
+      let optionsHtml = '<option value="">-- Seleziona --</option>';
+      options.forEach(opt => {
+        optionsHtml += `<option value="${escapeHtml(opt)}">${escapeHtml(opt)}</option>`;
+      });
+
+      div.innerHTML = `
+        <label class="field-label" for="dyn-field-${idx}">${escapeHtml(f)}</label>
+        <select id="dyn-field-${idx}" data-field-name="${escapeHtml(f)}">
+          ${optionsHtml}
+        </select>
+      `;
+      container.appendChild(div);
+    });
+
+    document.getElementById('no-fields-msg').style.display = 'none';
+    document.getElementById('form-panel').style.display = 'block';
+    
+    setDefaultDate();
+    updateTableHeaders();
+  }
+
+  function setDefaultDate() {
+    const n = new Date(); document.getElementById('field-data').value = `${n.getFullYear()}-${String(n.getMonth()+1).padStart(2,'0')}-${String(n.getDate()).padStart(2,'0')}`;
+  }
+
+  document.querySelectorAll('nav.tabs button').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('nav.tabs button').forEach(b => b.classList.remove('active'));
+      document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+      document.querySelectorAll('nav.tabs button').forEach(b => b.setAttribute('aria-selected', b === btn));
+      btn.classList.add('active');
+      document.getElementById(btn.dataset.tab).classList.add('active');
+    });
+  });
+
+  document.getElementById('btn-add-record').addEventListener('click', function() {
+    const record = {};
+    record['Data'] = document.getElementById('field-data').value;
+
+    dynamicFields.forEach((f, idx) => {
+      const select = document.getElementById(`dyn-field-${idx}`);
+      record[f] = select ? select.value : '';
+    });
+
+    const oreVal = parseFloat(document.getElementById('field-ore').value);
+    if (!record['Data'] || !(oreVal > 0)) {
+      document.getElementById('form-error').textContent = 'Indica una data e un numero di ore maggiore di zero.';
+      document.getElementById('field-ore').focus();
+      return;
+    }
+    document.getElementById('form-error').textContent = '';
+    record['Ore'] = oreVal;
+    record['Note'] = document.getElementById('field-note').value.trim();
+
+    collectedRecords.push(record);
+    renderRecordsTable();
+
+    setDefaultDate();
+    dynamicFields.forEach((f, idx) => {
+      const select = document.getElementById(`dyn-field-${idx}`);
+      if (select && !document.getElementById('keep-selections').checked) select.selectedIndex = 0;
+    });
+    document.getElementById('field-ore').value = '';
+    document.getElementById('field-note').value = '';
+    document.getElementById('field-ore').focus();
+  });
+
+  function updateTableHeaders() {
+    const thead = document.getElementById('records-thead-row');
+    const cols = ['Data', ...dynamicFields, 'Ore', 'Note', 'Azione'];
+    thead.innerHTML = cols.map(c => `<th>${escapeHtml(c)}</th>`).join('');
+  }
+
+  function renderRecordsTable() {
+    const tbody = document.getElementById('records-tbody');
+    tbody.innerHTML = '';
+
+    collectedRecords.forEach((rec, idx) => {
+      const tr = document.createElement('tr');
+      let html = `<td>${escapeHtml(rec['Data'] || '')}</td>`;
+      
+      dynamicFields.forEach(f => {
+        html += `<td>${escapeHtml(rec[f] || '')}</td>`;
+      });
+
+      html += `<td><strong>${rec['Ore'] !== undefined ? rec['Ore'] : ''}</strong></td>`;
+      /* FIX 1: Lettura corretta delle Note tramite la chiave 'Note' */
+      html += `<td>${escapeHtml(rec['Note'] || '')}</td>`;
+      html += `<td><button class="btn btn-icon-danger" onclick="deleteRecord(${idx})" aria-label="Elimina record"><i class="fa-solid fa-trash"></i></button></td>`;
+
+      tr.innerHTML = html;
+      tbody.appendChild(tr);
+    });
+
+    document.getElementById('records-panel').style.display = collectedRecords.length > 0 ? 'block' : 'none';
+    document.getElementById('record-count-header').innerHTML = `<i class="fa-solid fa-list-check"></i> ${collectedRecords.length} in coda`;
+    document.getElementById('queue-total').textContent = (Math.round(collectedRecords.reduce((t, r) => t + (r.Ore || 0), 0) * 100) / 100).toLocaleString('it-IT');
+  }
+
+  window.deleteRecord = function(idx) {
+    collectedRecords.splice(idx, 1);
+    renderRecordsTable();
+  };
+
+  /* SALVATAGGIO DEI RECORD SUL FILE DI DESTINAZIONE EXCEL */
+  document.getElementById('btn-export-excel').addEventListener('click', async function() {
+    if (collectedRecords.length === 0) {
+      showStatus('export-status', 'Nessun nuovo record da salvare.', 'err');
+      return;
+    }
+
+    if (!destFileHandle) {
+      // Su iPhone/iPad il file scelto tramite il selettore di sistema è un File
+      // senza un handle scrivibile: aggiorniamo il contenuto e scarichiamo il file risultante.
+      try {
+        const arrayBuffer = window.iosOutputFile
+          ? await window.iosOutputFile.arrayBuffer()
+          : new ArrayBuffer(0);
+        const updatedBuffer = mergeRecordsToExcelBuffer(arrayBuffer, collectedRecords);
+        const outName = window.selectedOutputFileName || 'Tracciamento_Ore_Output.xlsx';
+        const blob = new Blob([updatedBuffer], {
+          type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+        });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = outName;
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        setTimeout(() => URL.revokeObjectURL(url), 1000);
+
+        showStatus('export-status', window.iosOutputFile
+          ? `File "${escapeHtml(outName)}" aggiornato. Il file modificato è stato scaricato.`
+          : 'File salvato tramite download!', 'ok');
+        collectedRecords = [];
+        renderRecordsTable();
+      } catch(err) {
+        showStatus('export-status', 'Errore durante l\'esportazione: ' + err.message, 'err');
+      }
+      return;
+    }
+
+    try {
+      let arrayBuffer = new ArrayBuffer(0);
+      try {
+        const fileData = await destFileHandle.getFile();
+        arrayBuffer = await fileData.arrayBuffer();
+      } catch (e) {
+        // Il file verrà creato se vuoto o non accessibile
+      }
+      
+      const updatedBuffer = mergeRecordsToExcelBuffer(arrayBuffer, collectedRecords);
+
+      const writableStream = await destFileHandle.createWritable();
+      await writableStream.write(updatedBuffer);
+      await writableStream.close();
+
+      showStatus('export-status', `File locale "${destFileHandle.name}" aggiornato con successo!`, 'ok');
+
+      collectedRecords = [];
+      renderRecordsTable();
+    } catch (err) {
+      showStatus('export-status', 'Errore durante l\'aggiornamento del file locale: ' + err.message, 'err');
+    }
+  });
+
+  /* FIX 2: Lettura in append del file excel esistente mantenendo i record precedenti */
+  function mergeRecordsToExcelBuffer(arrayBuffer, newRecords) {
+    let existingRecords = [];
+    let workbook = XLSX.utils.book_new();
+    let firstSheetName = "Dati_Raccolti";
+
+    if (arrayBuffer && arrayBuffer.byteLength > 0) {
+      try {
+        workbook = XLSX.read(new Uint8Array(arrayBuffer), { type: 'array' });
+        firstSheetName = workbook.SheetNames[0] || "Dati_Raccolti";
+        const worksheet = workbook.Sheets[firstSheetName];
+        if (worksheet) {
+          existingRecords = XLSX.utils.sheet_to_json(worksheet, { defval: "" }) || [];
+        }
+      } catch (err) {
+        console.warn("Impossibile leggere il file esistente, verrà creato un nuovo foglio:", err);
+      }
+    }
+
+    const updatedRecords = [...existingRecords, ...newRecords];
+    const newWorksheet = XLSX.utils.json_to_sheet(updatedRecords);
+    
+    workbook.Sheets[firstSheetName] = newWorksheet;
+    if (!workbook.SheetNames.includes(firstSheetName)) {
+      XLSX.utils.book_append_sheet(workbook, newWorksheet, firstSheetName);
+    }
+
+    return XLSX.write(workbook, { bookType: 'xlsx', type: 'array' });
+  }
+
+  document.getElementById('btn-load-saved-dest').addEventListener('click', async function() {
+    let handle = destFileHandle || await getHandle('destFile');
+
+    if (!handle) {
+      showStatus('stats-status', 'Nessun file locale di destinazione memorizzato. Configura prima il file locale.', 'err');
+      return;
+    }
+
+    try {
+      if (await handle.queryPermission({ mode: 'read' }) !== 'granted') {
+        const perm = await handle.requestPermission({ mode: 'read' });
+        if (perm !== 'granted') {
+          showStatus('stats-status', 'Autorizzazione negata per la lettura del file locale.', 'err');
+          return;
+        }
+      }
+
+      destFileHandle = handle;
+      const file = await handle.getFile();
+      if (file.size === 0) {
+        showStatus('stats-status', `Il file "${handle.name}" è ancora vuoto: salva prima almeno un record.`, 'err');
+        return;
+      }
+      const arrayBuffer = await file.arrayBuffer();
+      parseAndProcessStatsBuffer(arrayBuffer, handle.name);
+
+    } catch (err) {
+      showStatus('stats-status', 'Errore nella lettura del file locale: ' + err.message, 'err');
+    }
+  });
+
+  function parseAndProcessStatsBuffer(arrayBuffer, sourceLabel) {
+    const workbook = XLSX.read(new Uint8Array(arrayBuffer), {type: 'array'});
+    const sheet = workbook.Sheets[workbook.SheetNames[0]];
+    const records = XLSX.utils.sheet_to_json(sheet);
+
+    if (records.length === 0) {
+      showStatus('stats-status', `Il file "${sourceLabel}" è vuoto o non contiene record validi.`, 'err');
+      return;
+    }
+
+    processAndInitStats(records);
+    showStatus('stats-status', `Analisi completata da "${sourceLabel}" (${records.length} record).`, 'ok');
+  }
+
+  document.getElementById('stats-file').addEventListener('change', function(e) {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = function(evt) {
+      try {
+        parseAndProcessStatsBuffer(evt.target.result, file.name);
+      } catch (err) {
+        showStatus('stats-status', 'Errore lettura file: ' + err.message, 'err');
+      }
+    };
+    reader.readAsArrayBuffer(file);
+  });
+
+  document.getElementById('btn-ios-stats-file').addEventListener('click', () => {
+    document.getElementById('stats-file').click();
+  });
+
+  function parseRecordDate(dateVal) {
+    if (!dateVal) return null;
+    if (typeof dateVal === 'number') {
+      const parsed = XLSX.SSF.parse_date_code(dateVal);
+      if (parsed) return new Date(parsed.y, parsed.m - 1, parsed.d);
+    }
+    const d = new Date(dateVal);
+    if (!isNaN(d.getTime())) return d;
+    return null;
+  }
+
+  function processAndInitStats(records) {
+    rawStatsRecords = records;
+    
+    const anniSet = new Set();
+    records.forEach(r => {
+      const dateKey = findMatchingKey(r, ['data', 'date']);
+      const d = parseRecordDate(r[dateKey]);
+      if (d) anniSet.add(d.getFullYear());
+    });
+
+    const annoSelect = document.getElementById('filter-anno');
+    annoSelect.innerHTML = '<option value="ALL">Tutti gli Anni</option>';
+    Array.from(anniSet).sort((a,b) => b - a).forEach(anno => {
+      const opt = document.createElement('option');
+      opt.value = anno;
+      opt.textContent = anno;
+      annoSelect.appendChild(opt);
+    });
+
+    document.getElementById('filter-mese').value = 'ALL';
+    document.getElementById('filter-anno').value = 'ALL';
+
+    updateFilteredStats();
+  }
+
+  function updateFilteredStats() {
+    if (rawStatsRecords.length === 0) return;
+
+    const meseVal = document.getElementById('filter-mese').value;
+    const annoVal = document.getElementById('filter-anno').value;
+
+    const filteredRecords = rawStatsRecords.filter(r => {
+      const dateKey = findMatchingKey(r, ['data', 'date']);
+      const d = parseRecordDate(r[dateKey]);
+      
+      if (!d) return true;
+
+      const matchMese = (meseVal === 'ALL') || ((d.getMonth() + 1) === parseInt(meseVal, 10));
+      const matchAnno = (annoVal === 'ALL') || (d.getFullYear() === parseInt(annoVal, 10));
+
+      return matchMese && matchAnno;
+    });
+
+    renderStats(filteredRecords);
+  }
+
+  function renderStats(records) {
+    document.getElementById('no-stats-msg').style.display = 'none';
+    document.getElementById('stats-content').style.display = 'block';
+
+    let totalOre = 0;
+    records.forEach(r => { totalOre += parseFloat(r.Ore || r.ore) || 0; });
+
+    document.getElementById('stat-summary-cards').innerHTML = `
+      <div class="stat-card">
+        <div class="icon-box"><i class="fa-solid fa-folder-open"></i></div>
+        <div>
+          <div class="num">${records.length}</div>
+          <div class="label">Totale Record</div>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="icon-box"><i class="fa-solid fa-business-time"></i></div>
+        <div>
+          <div class="num">${(Math.round(totalOre*100)/100).toLocaleString('it-IT')}</div>
+          <div class="label">Totale Ore Registrate</div>
+        </div>
+      </div>
+    `;
+
+    // Grafico 1: Cliente vs Tecnico/Nome (Barre Raggruppate)
+    createGroupedBarChart('chart-cliente-tecnico', records, ['cliente', 'commessa', 'azienda'], ['nome', 'risorsa', 'operatore', 'tecnico']);
+
+    // Altri Grafici a larghezza intera
+    createBarChart('chart-nome', records, ['nome', 'risorsa', 'operatore', 'tecnico'], 'Ore per Nome', '#5b6cf0', 'y');
+    createBarChart('chart-cliente', records, ['cliente', 'commessa', 'azienda'], 'Ore per Cliente', '#1fb5a0', 'y');
+    createBarChart('chart-area', records, ['area', 'ambito', 'reparto'], 'Ore per Area', '#9a7cf8', 'y');
+    createBarChart('chart-servizio', records, ['servizio', 'attività', 'tipo'], 'Ore per Servizio', '#f0a020', 'y');
+    createPieChart('chart-modalita', records, ['modalità', 'modalita', 'luogo'], 'Ore per Modalità');
+  }
+
+  // GRAFICO RAGGRUPPATO CLIENTE - TECNICO
+  function createGroupedBarChart(canvasId, records, clientKeys, techKeys) {
+    const canvas = document.getElementById(canvasId);
+    if (!canvas) return;
+
+    if (records.length === 0) {
+      if (chartInstances[canvasId]) chartInstances[canvasId].destroy();
+      return;
+    }
+
+    const clientKey = findMatchingKey(records[0], clientKeys);
+    const techKey = findMatchingKey(records[0], techKeys);
+
+    const clientSet = new Set();
+    const techSet = new Set();
+    const matrix = {};
+
+    records.forEach(r => {
+      const cliente = r[clientKey] ? String(r[clientKey]).trim() : '(Cliente non sp.)';
+      const tecnico = r[techKey] ? String(r[techKey]).trim() : '(Tecnico non sp.)';
+      const ore = parseFloat(r.Ore || r.ore) || 0;
+
+      clientSet.add(cliente);
+      techSet.add(tecnico);
+
+      if (!matrix[cliente]) matrix[cliente] = {};
+      matrix[cliente][tecnico] = (matrix[cliente][tecnico] || 0) + ore;
+    });
+
+    const clients = Array.from(clientSet);
+    const technicians = Array.from(techSet);
+
+    const palette = ['#5b6cf0', '#1fb5a0', '#f0a020', '#e60012', '#9a7cf8', '#0ea5e9', '#64748b', '#d946a8'];
+
+    const datasets = technicians.map((tech, idx) => {
+      return {
+        label: tech,
+        data: clients.map(client => (matrix[client] && matrix[client][tech]) ? matrix[client][tech] : 0),
+        backgroundColor: palette[idx % palette.length],
+        borderRadius: 4
+      };
+    });
+
+    if (chartInstances[canvasId]) chartInstances[canvasId].destroy();
+
+    const ctx = canvas.getContext('2d');
+    chartInstances[canvasId] = new Chart(ctx, {
+      type: 'bar',
+      data: { labels: clients, datasets },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { position: 'top' },
+          tooltip: {
+            callbacks: {
+              label: (context) => ` ${context.dataset.label}: ${context.raw} ore`
+            }
+          }
+        },
+        scales: {
+          x: { grid: { color: 'rgba(128,132,150,.16)' }, title: { display: true, text: 'Clienti' } },
+          y: { grid: { color: 'rgba(128,132,150,.16)' }, beginAtZero: true, title: { display: true, text: 'Ore Lavorate' } }
+        }
+      }
+    });
+  }
+
+  function createBarChart(canvasId, records, possibleKeys, labelText, color, indexAxis = 'y') {
+    if (records.length === 0) {
+      if (chartInstances[canvasId]) chartInstances[canvasId].destroy();
+      return;
+    }
+    const actualKey = findMatchingKey(records[0], possibleKeys);
+    const { labels, dataValues } = aggregateData(records, actualKey);
+
+    if (chartInstances[canvasId]) chartInstances[canvasId].destroy();
+
+    const ctx = document.getElementById(canvasId).getContext('2d');
+    chartInstances[canvasId] = new Chart(ctx, {
+      type: 'bar',
+      data: { labels, datasets: [{ label: labelText, data: dataValues, backgroundColor: color, borderRadius: 8, maxBarThickness: 48 }] },
+      options: {
+        indexAxis: indexAxis === 'x' ? 'y' : 'x',
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: { legend: { display: false } },
+        scales: { 
+          x: { grid: { color: 'rgba(128,132,150,.16)' }, beginAtZero: true },
+          y: { grid: { color: 'rgba(128,132,150,.16)' }, beginAtZero: true }
+        }
+      }
+    });
+  }
+
+  function createPieChart(canvasId, records, possibleKeys, labelText) {
+    if (records.length === 0) {
+      if (chartInstances[canvasId]) chartInstances[canvasId].destroy();
+      return;
+    }
+    const actualKey = findMatchingKey(records[0], possibleKeys);
+    const { labels, dataValues } = aggregateData(records, actualKey);
+    const pieColors = ['#5b6cf0', '#1fb5a0', '#f0a020', '#e60012', '#9a7cf8', '#0ea5e9', '#64748b'];
+
+    if (chartInstances[canvasId]) chartInstances[canvasId].destroy();
+
+    const ctx = document.getElementById(canvasId).getContext('2d');
+    chartInstances[canvasId] = new Chart(ctx, {
+      type: 'doughnut',
+      data: { labels, datasets: [{ label: labelText, data: dataValues, backgroundColor: pieColors.slice(0, labels.length), borderWidth: 3, borderColor: 'transparent', hoverOffset: 8 }] },
+      options: { cutout: '62%', responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom' } } }
+    });
+  }
+
+  function findMatchingKey(sampleRecord, possibleKeys) {
+    if (!sampleRecord) return possibleKeys[0];
+    return Object.keys(sampleRecord).find(k => possibleKeys.includes(k.trim().toLowerCase())) || possibleKeys[0];
+  }
+
+  function aggregateData(records, key) {
+    const aggregated = {};
+    records.forEach(r => {
+      const groupVal = r[key] ? String(r[key]).trim() : '(Non specificato)';
+      const ore = parseFloat(r.Ore || r.ore) || 0;
+      aggregated[groupVal] = (aggregated[groupVal] || 0) + ore;
+    });
+    const sorted = Object.entries(aggregated).sort((a, b) => b[1] - a[1]);
+    return { labels: sorted.map(e => e[0]), dataValues: sorted.map(e => Math.round(e[1] * 100) / 100) };
+  }
+
+  function showStatus(elementId, message, type) {
+    const el = document.getElementById(elementId);
+    if (!el) return;
+    const icon = type === 'ok' ? '<i class="fa-solid fa-circle-check"></i>' : '<i class="fa-solid fa-circle-exclamation"></i>';
+    el.className = `status-msg status-${type}`;
+    el.innerHTML = `${icon} ${message}`;
+  }
+
+  /* ERGONOMIA FORM */
+  const oreInput = document.getElementById('field-ore');
+  const stepOre = d => { oreInput.value = Math.max(0, (parseFloat(oreInput.value) || 0) + d); };
+  document.getElementById('ore-minus').addEventListener('click', () => stepOre(-0.25));
+  document.getElementById('ore-plus').addEventListener('click', () => stepOre(0.25));
+  document.querySelectorAll('[data-ore]').forEach(b => b.addEventListener('click', () => { oreInput.value = b.dataset.ore; oreInput.focus(); }));
+  document.getElementById('btn-today').addEventListener('click', setDefaultDate);
+  document.getElementById('form-panel').addEventListener('keydown', e => {
+    if (e.key !== 'Enter' || e.target.closest('button')) return;
+    if (e.target.tagName === 'TEXTAREA' && !e.ctrlKey && !e.metaKey) return;
+    e.preventDefault();
+    document.getElementById('btn-add-record').click();
+  });
+  document.getElementById('btn-clear-queue').addEventListener('click', () => {
+    if (collectedRecords.length && confirm('Svuotare la coda? I record non salvati andranno persi.')) {
+      collectedRecords = []; renderRecordsTable();
+    }
+  });
+  window.addEventListener('beforeunload', e => { if (collectedRecords.length) { e.preventDefault(); e.returnValue = ''; } });
+  document.querySelector('nav.tabs').addEventListener('keydown', e => {
+    if (e.key !== 'ArrowRight' && e.key !== 'ArrowLeft') return;
+    const tabs = [...document.querySelectorAll('nav.tabs button')];
+    const next = tabs[(tabs.indexOf(document.activeElement) + (e.key === 'ArrowRight' ? 1 : -1) + tabs.length) % tabs.length];
+    next.focus(); next.click();
+  });
+
+  function escapeHtml(str) {
+    return String(str).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
+  }
+</script>
+<script>
+  /* Micro-interazione: ripple Material sui pulsanti */
+  document.addEventListener('pointerdown', e => {
+    const t = e.target.closest('.btn, .chip, .stepper button, nav.tabs button');
+    if (!t) return;
+    const r = t.getBoundingClientRect(), s = Math.max(r.width, r.height) * 2;
+    const el = document.createElement('span');
+    el.className = 'ripple';
+    el.style.cssText = `width:${s}px;height:${s}px;left:${e.clientX - r.left - s / 2}px;top:${e.clientY - r.top - s / 2}px`;
+    t.appendChild(el);
+    el.addEventListener('animationend', () => el.remove());
+  });
+  /* Aggiorna i colori dei grafici al cambio tema chiaro/scuro */
+  matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
+    Chart.defaults.color = getComputedStyle(document.documentElement).getPropertyValue('--m-on-variant').trim();
+    if (rawStatsRecords.length) updateFilteredStats();
+  });
+</script>
+<script>
+  /* ===== IMPORTA FILE ESTERNO: unisce i record diversi al file di output e riordina per data ===== */
+  (function () {
+    const iso = (y, m, d) => `${y}-${String(m).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
+    const hasData = r => Object.values(r).some(v => String(v).trim() !== '');
+    const dateKeyOf = r => Object.keys(r).find(k => ['data', 'date'].includes(k.trim().toLowerCase()));
+
+    function normDate(v) {
+      if (v === undefined || v === null || v === '') return '';
+      if (v instanceof Date && !isNaN(v)) return iso(v.getFullYear(), v.getMonth() + 1, v.getDate());
+      if (typeof v === 'number') { const p = XLSX.SSF.parse_date_code(v); return p ? iso(p.y, p.m, p.d) : ''; }
+      const s = String(v).trim();
+      let m = s.match(/^(\d{4})-(\d{1,2})-(\d{1,2})/);
+      if (m) return iso(m[1], +m[2], +m[3]);
+      m = s.match(/^(\d{1,2})[\/.\-](\d{1,2})[\/.\-](\d{4})/);
+      if (m) return iso(m[3], +m[2], +m[1]);
+      const d = parseRecordDate(s);
+      return d ? iso(d.getFullYear(), d.getMonth() + 1, d.getDate()) : '';
+    }
+
+    // Chiave di confronto: ignora maiuscole, spazi, celle vuote, formato data e ordine colonne
+    function recKey(r) {
+      const dk = dateKeyOf(r);
+      return Object.keys(r).filter(k => String(r[k]).trim() !== '').sort().map(k => {
+        let v = r[k];
+        if (k === dk) v = normDate(v) || String(v).trim();
+        else {
+          const s = String(v).trim().replace(',', '.');
+          v = (s !== '' && !isNaN(s)) ? Math.round(parseFloat(s) * 1000) / 1000 : String(v).trim().toLowerCase();
+        }
+        return k.trim().toLowerCase() + '=' + v;
+      }).join('|');
+    }
+
+    function sortByDate(list) {
+      return list.map((r, i) => ({ r, i, k: normDate(r[dateKeyOf(r)]) || '9999-99-99' }))
+        .sort((a, b) => a.k < b.k ? -1 : a.k > b.k ? 1 : a.i - b.i).map(x => x.r);
+    }
+
+    function renderResult(read, added, dups) {
+      const card = (icon, n, label) => `<div class="stat-card"><div class="icon-box"><i class="fa-solid ${icon}"></i></div><div><div class="num">${n}</div><div class="label">${label}</div></div></div>`;
+      document.getElementById('import-result').innerHTML =
+        card('fa-file-lines', read, 'Record letti') + card('fa-circle-plus', added, 'Record aggiunti') + card('fa-clone', dups, 'Già presenti (saltati)');
+    }
+
+    const syncDestName = () => { document.getElementById('import-dest-name').textContent = document.getElementById('label-dest-name').textContent; };
+    document.querySelector('[data-tab="tab-importa"]').addEventListener('click', syncDestName);
+
+    document.getElementById('btn-import-external').addEventListener('click', async () => {
+      const S = 'import-status';
+      try {
+        const handle = destFileHandle || await getHandle('destFile');
+
+        // Su iPhone/iPad non esiste showOpenFilePicker: usiamo il selettore nativo
+        // dell'app File e poi elaboriamo il File scelto in memoria.
+        if (!('showOpenFilePicker' in window)) {
+          if (!window.iosOutputFile && !handle) {
+            showStatus(S, 'Configura prima il file di output nella scheda Inserimento usando "Sfoglia file iPhone / iPad".', 'err');
+            return;
+          }
+          syncDestName();
+          document.getElementById('input-ios-import-file').click();
+          return;
+        }
+
+        if (!handle) {
+          showStatus(S, 'Configura prima il file di output nella scheda Inserimento.', 'err');
+          return;
+        }
+        if (await handle.queryPermission({ mode: 'readwrite' }) !== 'granted' &&
+            await handle.requestPermission({ mode: 'readwrite' }) !== 'granted') {
+          showStatus(S, 'Autorizzazione negata per la scrittura del file di output.', 'err');
+          return;
+        }
+        destFileHandle = handle;
+        syncDestName();
+
+        const [ext] = await window.showOpenFilePicker({
+          multiple: false,
+          types: [{ description: 'File Excel', accept: {
+            'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet': ['.xlsx'],
+            'application/vnd.ms-excel': ['.xls'] } }]
+        });
+        if (await ext.isSameEntry(handle)) {
+          showStatus(S, 'Hai scelto il file di output: seleziona un file diverso.', 'err');
+          return;
+        }
+
+        showStatus(S, 'Importazione in corso...', 'ok');
+        const extFile = await ext.getFile();
+        const extWb = XLSX.read(new Uint8Array(await extFile.arrayBuffer()), { type: 'array' });
+        const imported = (XLSX.utils.sheet_to_json(extWb.Sheets[extWb.SheetNames[0]], { defval: '' }) || []).filter(hasData);
+        if (!imported.length) {
+          showStatus(S, `Il file "${escapeHtml(extFile.name)}" è vuoto o non contiene record validi.`, 'err');
+          return;
+        }
+
+        let wb = XLSX.utils.book_new(), sheetName = 'Dati_Raccolti', existing = [];
+        const outBuf = await (await handle.getFile()).arrayBuffer();
+        if (outBuf.byteLength > 0) {
+          wb = XLSX.read(new Uint8Array(outBuf), { type: 'array' });
+          sheetName = wb.SheetNames[0] || sheetName;
+          existing = XLSX.utils.sheet_to_json(wb.Sheets[sheetName], { defval: '' }) || [];
+        }
+
+        const seen = new Set(existing.filter(hasData).map(recKey));
+        const merged = existing.slice();
+        let added = 0, dups = 0;
+        imported.forEach(r => {
+          const dk = dateKeyOf(r);
+          if (dk) r[dk] = normDate(r[dk]) || r[dk];
+          const k = recKey(r);
+          if (seen.has(k)) { dups++; return; }
+          seen.add(k); merged.push(r); added++;
+        });
+
+        renderResult(imported.length, added, dups);
+        if (added === 0) {
+          showStatus(S, `Nessun record nuovo in "${escapeHtml(extFile.name)}": il file di output non è stato modificato.`, 'ok');
+          return;
+        }
+
+        const ws = XLSX.utils.json_to_sheet(sortByDate(merged));
+        wb.Sheets[sheetName] = ws;
+        if (!wb.SheetNames.includes(sheetName)) XLSX.utils.book_append_sheet(wb, ws, sheetName);
+        const out = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
+        const w = await handle.createWritable();
+        await w.write(out);
+        await w.close();
+
+        showStatus(S, `Importati ${added} nuovi record da "${escapeHtml(extFile.name)}" in "${escapeHtml(handle.name)}", riordinati per data.`, 'ok');
+      } catch (err) {
+        if (err && err.name === 'AbortError') return;
+        showStatus('import-status', 'Errore durante l\'importazione: ' + escapeHtml(err.message), 'err');
+      }
+    });
+
+    // Importazione da File su iPhone/iPad.
+    document.getElementById('btn-ios-import-file').addEventListener('click', () => {
+      document.getElementById('input-ios-import-file').click();
+    });
+
+    document.getElementById('input-ios-import-file').addEventListener('change', async (e) => {
+      const extFile = e.target.files && e.target.files[0];
+      e.target.value = '';
+      if (!extFile) return;
+
+      const S = 'import-status';
+      try {
+        if (!window.iosOutputFile) {
+          showStatus(S, 'Seleziona prima il file di output con "Sfoglia file iPhone / iPad".', 'err');
+          return;
+        }
+
+        showStatus(S, 'Importazione in corso...', 'ok');
+
+        const extWb = XLSX.read(new Uint8Array(await extFile.arrayBuffer()), { type: 'array' });
+        const imported = (XLSX.utils.sheet_to_json(extWb.Sheets[extWb.SheetNames[0]], { defval: '' }) || []).filter(hasData);
+        if (!imported.length) {
+          showStatus(S, `Il file "${escapeHtml(extFile.name)}" è vuoto o non contiene record validi.`, 'err');
+          return;
+        }
+
+        let wb = XLSX.utils.book_new(), sheetName = 'Dati_Raccolti', existing = [];
+        const outBuf = await window.iosOutputFile.arrayBuffer();
+        if (outBuf.byteLength > 0) {
+          wb = XLSX.read(new Uint8Array(outBuf), { type: 'array' });
+          sheetName = wb.SheetNames[0] || sheetName;
+          existing = XLSX.utils.sheet_to_json(wb.Sheets[sheetName], { defval: '' }) || [];
+        }
+
+        const seen = new Set(existing.filter(hasData).map(recKey));
+        const merged = existing.slice();
+        let added = 0, dups = 0;
+        imported.forEach(r => {
+          const dk = dateKeyOf(r);
+          if (dk) r[dk] = normDate(r[dk]) || r[dk];
+          const k = recKey(r);
+          if (seen.has(k)) { dups++; return; }
+          seen.add(k); merged.push(r); added++;
+        });
+
+        renderResult(imported.length, added, dups);
+        if (added === 0) {
+          showStatus(S, `Nessun record nuovo in "${escapeHtml(extFile.name)}": il file di output non è stato modificato.`, 'ok');
+          return;
+        }
+
+        const ws = XLSX.utils.json_to_sheet(sortByDate(merged));
+        wb.Sheets[sheetName] = ws;
+        if (!wb.SheetNames.includes(sheetName)) XLSX.utils.book_append_sheet(wb, ws, sheetName);
+        const out = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
+
+        const outName = window.selectedOutputFileName || window.iosOutputFile.name || 'Tracciamento_Ore.xlsx';
+        const blob = new Blob([out], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = outName;
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        setTimeout(() => URL.revokeObjectURL(url), 1000);
+
+        showStatus(S, `Importati ${added} nuovi record da "${escapeHtml(extFile.name)}". Il file aggiornato "${escapeHtml(outName)}" è stato scaricato.`, 'ok');
+      } catch (err) {
+        showStatus(S, 'Errore durante l\'importazione: ' + escapeHtml(err.message), 'err');
+      }
+    });
+  })();
+</script>
+</body>
+</html>
