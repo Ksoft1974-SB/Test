@@ -1,0 +1,761 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Setup Associazioni Area → Sales</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Roboto+Flex:wght@300..800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+<style>
+  :root {
+    color-scheme: light dark;
+    --m-primary:#4152b0; --m-on-primary:#fff; --m-primary-c:#dfe1ff; --m-on-primary-c:#00105c;
+    --m-secondary-c:#dfe1f6; --m-on-secondary-c:#171a2c;
+    --m-tertiary:#a8364b; --m-tertiary-c:#ffd9de; --m-on-tertiary-c:#3f0016;
+    --m-surface:#fbf8ff; --m-sc-low:#f4f3fb; --m-sc:#eeedf6; --m-sc-high:#e8e7f0;
+    --m-on-surface:#1b1b21; --m-on-variant:#46464f; --m-outline:#777680; --m-outline-v:#c7c5d0;
+    --m-glass:rgba(251,248,255,.72);
+    --ok-bg:#d6f2df; --ok:#0b5a30; --err-bg:#ffdad6; --err:#93000a;
+    --warn-bg:#fff4d6; --warn:#7a5900;
+    --e1:0 1px 2px rgb(40 40 90/.10),0 1px 3px 1px rgb(40 40 90/.06);
+    --e2:0 1px 2px rgb(40 40 90/.12),0 2px 6px 2px rgb(40 40 90/.08);
+    --e3:0 4px 8px 3px rgb(40 40 90/.08),0 1px 3px rgb(40 40 90/.14),0 18px 40px -12px rgb(65 82 176/.28);
+    --ease:cubic-bezier(.2,0,0,1);
+    --r-xl:28px; --r-lg:20px; --r-md:16px;
+  }
+  @media (prefers-color-scheme:dark) {
+    :root {
+      --m-primary:#b9c3ff; --m-on-primary:#0b1f84; --m-primary-c:#2a3b9c; --m-on-primary-c:#dfe1ff;
+      --m-secondary-c:#41465c; --m-on-secondary-c:#dfe1f6;
+      --m-tertiary:#ffb2bd; --m-tertiary-c:#7d2a3c; --m-on-tertiary-c:#ffd9de;
+      --m-surface:#121318; --m-sc-low:#1b1b21; --m-sc:#1f1f25; --m-sc-high:#292a2f;
+      --m-on-surface:#e4e1e9; --m-on-variant:#c7c5d0; --m-outline:#91909a; --m-outline-v:#46464f;
+      --m-glass:rgba(18,19,24,.7);
+      --ok-bg:#12402a; --ok:#9be3b3; --err-bg:#5c1a15; --err:#ffb4ab;
+      --warn-bg:#3d2f00; --warn:#ffd966;
+      --e1:0 1px 2px rgb(0 0 0/.4),0 1px 3px 1px rgb(0 0 0/.25);
+      --e2:0 1px 2px rgb(0 0 0/.45),0 2px 6px 2px rgb(0 0 0/.3);
+      --e3:0 4px 8px 3px rgb(0 0 0/.3),0 1px 3px rgb(0 0 0/.5),0 18px 40px -12px rgb(0 0 0/.6);
+    }
+  }
+  * { box-sizing:border-box; }
+  html,body { margin:0; padding:0; }
+  body {
+    background:var(--m-surface); color:var(--m-on-surface);
+    font-family:'Roboto Flex','Manrope',system-ui,sans-serif;
+    font-size:15px; line-height:1.55; min-height:100vh;
+    -webkit-font-smoothing:antialiased;
+  }
+  :focus-visible { outline:3px solid var(--m-primary); outline-offset:2px; }
+
+  .app-header { position:sticky; top:0; z-index:50; padding:max(10px,env(safe-area-inset-top)) 16px 0; }
+  .header-container {
+    position:relative; isolation:isolate; max-width:1208px; margin:0 auto;
+    padding:8px 12px 8px 18px; display:flex; align-items:center; justify-content:space-between; gap:20px;
+    border:1px solid color-mix(in srgb,var(--m-outline-v) 70%,transparent);
+    border-radius:var(--r-xl); box-shadow:var(--e2);
+  }
+  .header-container::before {
+    content:""; position:absolute; inset:0; z-index:-1; border-radius:inherit;
+    background:var(--m-glass); backdrop-filter:blur(24px) saturate(1.6);
+  }
+  .brand h1 { margin:0; font-size:1.15rem; font-weight:600; display:flex; align-items:center; gap:12px; }
+  .brand h1::before {
+    content:"\f0ce"; font-family:"Font Awesome 6 Free"; font-weight:900; font-size:1rem;
+    width:40px; height:40px; display:grid; place-items:center; border-radius:14px;
+    background:var(--m-primary); color:var(--m-on-primary);
+  }
+
+  main { max-width:1100px; margin:0 auto; padding:24px 16px 56px; }
+
+  .panel {
+    background:color-mix(in srgb,var(--m-sc-low) 80%,transparent);
+    backdrop-filter:blur(18px);
+    border:1px solid color-mix(in srgb,var(--m-outline-v) 60%,transparent);
+    border-radius:var(--r-xl); box-shadow:var(--e1);
+    padding:24px; margin-bottom:20px;
+  }
+  .panel h2 { margin:0 0 4px; font-size:1.1rem; font-weight:600; display:flex; align-items:center; gap:12px; }
+  .panel h2 i { flex:none; width:36px; height:36px; display:grid; place-items:center; border-radius:12px; background:var(--m-primary-c); color:var(--m-on-primary-c); font-size:.85rem; }
+  .panel .hint { margin:2px 0 20px; color:var(--m-on-variant); font-size:.88rem; }
+
+  /* ===== Banner stato salvataggio ===== */
+  .save-banner {
+    display:flex; align-items:center; gap:12px; flex-wrap:wrap;
+    padding:12px 18px; border-radius:var(--r-lg); margin-bottom:18px;
+    font-size:.9rem; font-weight:600;
+    background:var(--m-sc); color:var(--m-on-variant);
+    border:1px solid color-mix(in srgb,var(--m-outline-v) 60%,transparent);
+    transition:all .3s var(--ease);
+  }
+  .save-banner .badge {
+    display:inline-flex; align-items:center; gap:6px;
+    padding:4px 12px; border-radius:999px;
+    font-size:.78rem; font-weight:700;
+    background:var(--m-sc-high); color:var(--m-on-variant);
+  }
+  .save-banner.saved { background:var(--ok-bg); color:var(--ok); border-color:transparent; }
+  .save-banner.saved .badge { background:color-mix(in srgb,var(--ok) 20%,transparent); color:var(--ok); }
+  .save-banner.warn { background:var(--warn-bg); color:var(--warn); border-color:transparent; }
+  .save-banner.warn .badge { background:color-mix(in srgb,var(--warn) 20%,transparent); color:var(--warn); }
+  .save-banner .spacer { flex:1; }
+
+  .btn {
+    display:inline-flex; align-items:center; justify-content:center; gap:10px;
+    padding:10px 20px; min-height:46px; border-radius:999px; border:1px solid transparent;
+    font:inherit; font-size:.92rem; font-weight:600; cursor:pointer;
+    transition:all .3s var(--ease); text-decoration:none;
+  }
+  .btn:active { transform:scale(.96); }
+  .btn-primary { background:var(--m-primary); color:var(--m-on-primary); box-shadow:var(--e1); }
+  .btn-primary:hover { box-shadow:var(--e2); transform:translateY(-1px); }
+  .btn-outline { background:transparent; color:var(--m-primary); border-color:var(--m-outline); }
+  .btn-outline:hover { border-color:var(--m-primary); }
+  .btn-danger { background:var(--err-bg); color:var(--err); }
+  .btn-ok { background:var(--ok-bg); color:var(--ok); }
+  .btn-sm { min-height:38px; padding:8px 14px; font-size:.82rem; }
+
+  .row { display:flex; gap:12px; flex-wrap:wrap; align-items:center; }
+  input[type=text] {
+    padding:10px 16px; border:1px solid transparent; border-radius:var(--r-md);
+    font:inherit; font-size:.94rem; background:var(--m-sc); color:var(--m-on-surface);
+    min-height:46px; transition:all .3s var(--ease);
+  }
+  input[type=text]:focus { outline:none; border-color:var(--m-primary); box-shadow:0 0 0 3px color-mix(in srgb,var(--m-primary) 25%,transparent); }
+
+  .status-msg {
+    font-size:.88rem; padding:12px 16px; border-radius:var(--r-md); margin-top:14px;
+    display:flex; align-items:flex-start; gap:10px; font-weight:500;
+  }
+  .status-ok { background:var(--ok-bg); color:var(--ok); }
+  .status-err { background:var(--err-bg); color:var(--err); }
+
+  /* Stat cards */
+  .stat-cards { display:grid; grid-template-columns:repeat(auto-fit,minmax(180px,1fr)); gap:14px; margin-bottom:18px; }
+  .stat-card { padding:18px 20px; border-radius:var(--r-lg); display:flex; align-items:center; gap:16px; }
+  .stat-card:nth-child(1) { background:var(--m-primary-c); color:var(--m-on-primary-c); }
+  .stat-card:nth-child(2) { background:var(--m-tertiary-c); color:var(--m-on-tertiary-c); }
+  .stat-card:nth-child(3) { background:var(--m-secondary-c); color:var(--m-on-secondary-c); }
+  .stat-card .icon-box { width:48px; height:48px; border-radius:16px; background:color-mix(in srgb,currentColor 14%,transparent); display:grid; place-items:center; font-size:1.1rem; flex-shrink:0; }
+  .stat-card .num { font-size:1.8rem; font-weight:700; line-height:1.1; letter-spacing:-.02em; }
+  .stat-card .label { font-size:.82rem; font-weight:600; opacity:.78; }
+
+  /* Area cards */
+  .area-card {
+    background:var(--m-sc); border-radius:var(--r-lg);
+    margin-bottom:10px; overflow:hidden;
+    transition:box-shadow .3s var(--ease);
+  }
+  .area-card[open] { box-shadow:var(--e2); }
+  .area-card summary {
+    padding:14px 18px; cursor:pointer; display:flex; justify-content:space-between;
+    align-items:center; gap:12px; font-weight:600; list-style:none;
+    transition:background .2s var(--ease);
+  }
+  .area-card summary::-webkit-details-marker { display:none; }
+  .area-card summary:hover { background:var(--m-sc-high); }
+  .area-card summary .area-name { display:flex; align-items:center; gap:10px; }
+  .area-card summary .area-name i { color:var(--m-primary); font-size:.9rem; transition:transform .3s var(--ease); }
+  .area-card[open] summary .area-name i { transform:rotate(90deg); }
+  .area-card summary .area-meta { color:var(--m-on-variant); font-size:.82rem; font-weight:500; display:flex; align-items:center; gap:6px; }
+  .area-card summary .area-meta.badge-on { color:var(--ok); font-weight:700; }
+  .area-card .area-body { padding:6px 18px 18px; }
+  .area-card .area-tools { display:flex; gap:8px; margin-bottom:12px; flex-wrap:wrap; }
+  .area-card .area-hint { font-size:.78rem; color:var(--m-on-variant); margin-bottom:10px; }
+
+  .chips-scroll { max-height:280px; overflow:auto; padding-right:6px; }
+  .chips { display:flex; gap:8px; flex-wrap:wrap; }
+  .chip {
+    min-height:34px; padding:0 14px; border:1px solid var(--m-outline);
+    border-radius:999px; background:transparent; color:var(--m-on-variant);
+    font:inherit; font-size:.84rem; font-weight:600; cursor:pointer;
+    transition:all .2s var(--ease);
+  }
+  .chip:hover { border-color:var(--m-primary); color:var(--m-primary); }
+  .chip.chip-on { background:var(--m-primary); color:var(--m-on-primary); border-color:var(--m-primary); }
+  .chip.chip-on:hover { background:color-mix(in srgb,var(--m-primary) 88%,black); }
+  .chip-mini { min-height:28px; padding:0 12px; font-size:.76rem; background:var(--m-secondary-c); color:var(--m-on-secondary-c); border-color:transparent; }
+  .chip-mini:hover { background:var(--m-sc-high); color:var(--m-on-surface); border-color:var(--m-outline); }
+
+  /* Toast */
+  .toast {
+    position:fixed; left:50%; bottom:24px;
+    transform:translateX(-50%) translateY(80px); opacity:0;
+    background:var(--m-primary); color:var(--m-on-primary);
+    padding:12px 22px; border-radius:999px; box-shadow:var(--e3);
+    font-weight:600; font-size:.9rem; pointer-events:none;
+    transition:transform .35s var(--ease), opacity .35s var(--ease);
+    z-index:1000;
+  }
+  .toast.show { transform:translateX(-50%) translateY(0); opacity:1; }
+  .toast.err { background:var(--err); color:#fff; }
+  .toast.ok { background:var(--ok); color:#fff; }
+
+  .empty-state { text-align:center; padding:40px 20px; color:var(--m-on-variant); }
+  .empty-state i { font-size:2.5rem; color:var(--m-primary); margin-bottom:12px; display:block; }
+
+  @media (max-width:600px) {
+    .panel { padding:20px 16px; border-radius:22px; }
+    .header-container { flex-direction:column; align-items:stretch; gap:12px; }
+    .brand h1 { font-size:1rem; }
+    .row { flex-direction:column; }
+    .row .btn { width:100%; }
+    .save-banner { flex-direction:column; align-items:stretch; }
+    .save-banner .btn { width:100%; }
+  }
+</style>
+
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+</head>
+<body>
+
+<header class="app-header">
+  <div class="header-container">
+    <div class="brand">
+      <h1>Setup Associazioni Area → Sales</h1>
+    </div>
+    <a href="index.html" class="btn btn-outline">
+      <i class="fa-solid fa-arrow-left"></i> Torna all'app
+    </a>
+  </div>
+</header>
+
+<main>
+
+  <div class="panel" id="load-panel">
+    <h2><i class="fa-solid fa-file-excel"></i> Carica le liste</h2>
+    <p class="hint">
+      Carica <strong>Liste.xlsx</strong> (il file con le colonne <em>Area</em> e <em>Sales</em>).
+      La configurazione viene salvata <strong>automaticamente</strong> nel browser e applicata
+      ogni volta che carichi le liste nella pagina principale.
+    </p>
+    <div class="row">
+      <button class="btn btn-primary" id="btn-load-cfg">
+        <i class="fa-solid fa-globe"></i> Da CFG/Liste.xlsx
+      </button>
+      <button class="btn btn-outline" id="btn-load-local">
+        <i class="fa-solid fa-folder-open"></i> Scegli file locale
+      </button>
+      <button class="btn btn-outline" id="btn-load-cache" style="display:none;">
+        <i class="fa-solid fa-clock-rotate-left"></i> Usa cache del browser
+      </button>
+    </div>
+    <input type="file" id="input-template-excel" accept=".xlsx,.xls" hidden>
+    <div id="load-status"></div>
+  </div>
+
+  <div id="mapping-panel" style="display:none;">
+
+    <!-- ===== Banner stato salvataggio ===== -->
+    <div class="save-banner" id="save-banner">
+      <span class="badge" id="save-badge"><i class="fa-solid fa-circle-info"></i> Pronto</span>
+      <span id="save-text">Seleziona i Sales per ogni Area. Le modifiche vengono salvate automaticamente.</span>
+      <span class="spacer"></span>
+      <button class="btn btn-ok btn-sm" id="btn-save-now" title="Forza il salvataggio in localStorage">
+        <i class="fa-solid fa-floppy-disk"></i> Salva ora
+      </button>
+      <button class="btn btn-outline btn-sm" id="btn-reload-saved" title="Ricarica la configurazione salvata, annullando modifiche non salvate">
+        <i class="fa-solid fa-rotate-left"></i> Ricarica salvata
+      </button>
+    </div>
+
+    <div class="stat-cards" id="mapping-summary"></div>
+
+    <div class="panel">
+      <h2><i class="fa-solid fa-table-list"></i> Associazioni</h2>
+      <p class="hint">
+        Seleziona, per ogni Area, i Sales associati. Nella pagina principale, scegliendo un'Area,
+        il menu Sales mostrerà <strong>solo</strong> i Sales associati. Se non selezioni nulla, saranno mostrati tutti.
+      </p>
+      <div class="row" style="margin-bottom:18px;">
+        <input type="text" id="area-search" placeholder="🔎 Filtra aree…" style="flex:1; min-width:200px;">
+        <button class="btn btn-outline btn-sm" id="btn-expand-all" title="Apri tutte le aree">
+          <i class="fa-solid fa-angles-down"></i> Apri tutte
+        </button>
+        <button class="btn btn-outline btn-sm" id="btn-collapse-all" title="Chiudi tutte le aree">
+          <i class="fa-solid fa-angles-up"></i> Chiudi tutte
+        </button>
+      </div>
+      <div id="mapping-list"></div>
+    </div>
+
+    <div class="panel">
+      <h2><i class="fa-solid fa-file-export"></i> Backup e trasferimento</h2>
+      <p class="hint">
+        Esporta la configurazione in un file JSON per conservarla o trasferirla su un altro dispositivo/browser.
+      </p>
+      <div class="row">
+        <button class="btn btn-outline" id="btn-export-json">
+          <i class="fa-solid fa-download"></i> Esporta JSON
+        </button>
+        <button class="btn btn-outline" id="btn-import-json">
+          <i class="fa-solid fa-upload"></i> Importa JSON
+        </button>
+        <input type="file" id="input-import-json" accept=".json,application/json" hidden>
+        <button class="btn btn-danger" id="btn-clear-all" style="margin-left:auto;">
+          <i class="fa-solid fa-eraser"></i> Cancella tutte le associazioni
+        </button>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="panel empty-state" id="empty-state">
+    <i class="fa-solid fa-table-columns"></i>
+    <p>Carica un file per iniziare a configurare le associazioni.</p>
+  </div>
+
+</main>
+
+<div class="toast" id="toast"></div>
+
+<script>
+/* ============================================================
+   SETUP ASSOCIAZIONI AREA → SALES  (v2 - con salvataggio esplicito)
+   ============================================================ */
+(function () {
+  const LS_MAPPING_KEY = 'areaSalesMapping';
+  const LS_OPTIONS_KEY = 'listeOptionsCache';
+  const CFG_PATHS = ['./CFG/Liste.xlsx', './cfg/Liste.xlsx'];
+
+  let allAreas = [];
+  let allSales = [];
+  let mapping = {};
+  let dirty = false;              // modifiche non ancora esplicitate con "Salva ora"
+  let lastSavedAt = null;
+
+  const $ = id => document.getElementById(id);
+  const escapeHtml = s => String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#039;');
+
+  let toastTimer = null;
+  function toast(msg, kind) {
+    const el = $('toast');
+    el.textContent = msg;
+    el.classList.remove('err', 'ok');
+    if (kind === 'err') el.classList.add('err');
+    else if (kind === 'ok') el.classList.add('ok');
+    el.classList.add('show');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => el.classList.remove('show'), 2200);
+  }
+
+  function showStatus(id, html, type) {
+    const el = $(id);
+    if (!el) return;
+    el.className = `status-msg status-${type}`;
+    el.innerHTML = `<i class="fa-solid ${type === 'ok' ? 'fa-circle-check' : 'fa-circle-exclamation'}"></i> ${html}`;
+  }
+
+  /* ===== Persistenza ===== */
+  function loadMapping() {
+    try {
+      mapping = JSON.parse(localStorage.getItem(LS_MAPPING_KEY) || '{}');
+      const meta = JSON.parse(localStorage.getItem(LS_MAPPING_KEY + '_meta') || 'null');
+      lastSavedAt = meta && meta.savedAt ? new Date(meta.savedAt) : null;
+    } catch (e) {
+      mapping = {};
+      lastSavedAt = null;
+    }
+  }
+
+  function saveMapping(showFeedback) {
+    try {
+      localStorage.setItem(LS_MAPPING_KEY, JSON.stringify(mapping));
+      const now = Date.now();
+      localStorage.setItem(LS_MAPPING_KEY + '_meta', JSON.stringify({ savedAt: now }));
+      lastSavedAt = new Date(now);
+      dirty = false;
+      updateSaveBanner();
+      if (showFeedback) toast('Configurazione salvata', 'ok');
+    } catch (e) {
+      toast('Errore salvataggio: ' + e.message, 'err');
+    }
+  }
+
+  /* ===== Banner stato ===== */
+  function updateSaveBanner() {
+    const banner = $('save-banner');
+    const badge = $('save-badge');
+    const text  = $('save-text');
+    if (!banner) return;
+
+    const configured = allAreas.filter(a => Array.isArray(mapping[a]) && mapping[a].length > 0).length;
+    const totalLinks = Object.values(mapping).reduce((s, arr) => s + (Array.isArray(arr) ? arr.length : 0), 0);
+    const when = lastSavedAt ? lastSavedAt.toLocaleString('it-IT', { dateStyle:'short', timeStyle:'short' }) : 'mai';
+
+    if (dirty) {
+      banner.className = 'save-banner warn';
+      badge.innerHTML = '<i class="fa-solid fa-circle-exclamation"></i> Modifiche non salvate';
+      text.textContent = `${configured} aree · ${totalLinks} link · tocca "Salva ora" per confermare.`;
+    } else if (configured > 0) {
+      banner.className = 'save-banner saved';
+      badge.innerHTML = '<i class="fa-solid fa-circle-check"></i> Salvato';
+      text.textContent = `${configured} aree · ${totalLinks} link · ultimo salvataggio: ${when}`;
+    } else {
+      banner.className = 'save-banner';
+      badge.innerHTML = '<i class="fa-solid fa-circle-info"></i> Pronto';
+      text.textContent = 'Nessuna associazione configurata. Seleziona i Sales per ogni Area.';
+    }
+  }
+
+  /* ===== Estrazione colonne ===== */
+  function findColumn(map, name) {
+    const lower = name.toLowerCase();
+    const key = Object.keys(map).find(k => k.trim().toLowerCase() === lower);
+    return key ? map[key] : [];
+  }
+
+  async function loadFromBuffer(arrayBuffer, label) {
+    const wb = XLSX.read(new Uint8Array(arrayBuffer), { type: 'array' });
+    const ws = wb.Sheets[wb.SheetNames[0]];
+    const json = XLSX.utils.sheet_to_json(ws, { header: 1 });
+    if (!json || !json.length) {
+      showStatus('load-status', 'Il file è vuoto o non valido.', 'err');
+      return;
+    }
+    const headers = json[0].map(h => String(h).trim()).filter(h => h.length);
+    const map = {};
+    headers.forEach((h, col) => {
+      const vals = new Set();
+      for (let r = 1; r < json.length; r++) {
+        const v = json[r] && json[r][col];
+        if (v !== undefined && v !== null) {
+          const s = String(v).trim();
+          if (s) vals.add(s);
+        }
+      }
+      map[h] = Array.from(vals);
+    });
+
+    try { localStorage.setItem(LS_OPTIONS_KEY, JSON.stringify(map)); } catch (e) {}
+
+    allAreas = findColumn(map, 'area').sort((a,b)=>a.localeCompare(b,'it'));
+    allSales = findColumn(map, 'sales').sort((a,b)=>a.localeCompare(b,'it'));
+
+    if (!allAreas.length) { showStatus('load-status', 'Colonna <strong>Area</strong> non trovata nel file.', 'err'); return; }
+    if (!allSales.length) { showStatus('load-status', 'Colonna <strong>Sales</strong> non trovata nel file.', 'err'); return; }
+
+    // Carica la configurazione salvata
+    loadMapping();
+
+    // Rimuovi eventuali associazioni che puntano a Sales non più presenti
+    let cleaned = 0;
+    Object.keys(mapping).forEach(area => {
+      if (!Array.isArray(mapping[area])) { delete mapping[area]; return; }
+      const valid = mapping[area].filter(s => allSales.includes(s));
+      if (valid.length !== mapping[area].length) { cleaned++; mapping[area] = valid; }
+      if (valid.length === 0) delete mapping[area];
+    });
+    if (cleaned) {
+      saveMapping(false);
+      toast(`${cleaned} associazioni rimosse (Sales non più presenti)`, 'err');
+    }
+
+    renderMappingUI();
+    $('load-panel').style.display = 'none';
+    $('mapping-panel').style.display = 'block';
+    $('empty-state').style.display = 'none';
+
+    const configured = allAreas.filter(a => Array.isArray(mapping[a]) && mapping[a].length > 0).length;
+    const tot = Object.values(mapping).reduce((s, arr) => s + (Array.isArray(arr) ? arr.length : 0), 0);
+    showStatus('load-status',
+      `Caricate ${allAreas.length} Aree e ${allSales.length} Sales da <strong>${escapeHtml(label)}</strong>. ` +
+      (configured > 0
+        ? `Configurazione esistente caricata: <strong>${configured} aree, ${tot} link</strong>.`
+        : 'Nessuna configurazione esistente per questo file.'),
+      'ok');
+    toast(configured > 0 ? `Configurazione esistente caricata (${configured} aree, ${tot} link)` : 'Nessuna configurazione esistente', 'ok');
+  }
+
+  async function tryLoadCfg() {
+    for (const path of CFG_PATHS) {
+      try {
+        const r = await fetch(path);
+        if (!r.ok) continue;
+        const buf = await r.arrayBuffer();
+        await loadFromBuffer(buf, path.replace('./',''));
+        return true;
+      } catch (e) {}
+    }
+    return false;
+  }
+
+  function tryLoadCache() {
+    try {
+      const raw = localStorage.getItem(LS_OPTIONS_KEY);
+      if (!raw) return false;
+      const map = JSON.parse(raw);
+      allAreas = findColumn(map, 'area').sort((a,b)=>a.localeCompare(b,'it'));
+      allSales = findColumn(map, 'sales').sort((a,b)=>a.localeCompare(b,'it'));
+      if (!allAreas.length || !allSales.length) return false;
+      loadMapping();
+      renderMappingUI();
+      $('load-panel').style.display = 'none';
+      $('mapping-panel').style.display = 'block';
+      $('empty-state').style.display = 'none';
+
+      const configured = allAreas.filter(a => Array.isArray(mapping[a]) && mapping[a].length > 0).length;
+      const tot = Object.values(mapping).reduce((s, arr) => s + (Array.isArray(arr) ? arr.length : 0), 0);
+      showStatus('load-status',
+        `Liste recuperate dalla cache locale (${allAreas.length} aree, ${allSales.length} sales). ` +
+        (configured > 0
+          ? `Configurazione esistente: <strong>${configured} aree, ${tot} link</strong>.`
+          : 'Nessuna configurazione esistente.'),
+        'ok');
+      return true;
+    } catch (e) { return false; }
+  }
+
+  /* ===== Rendering ===== */
+  function renderSummary() {
+    const configured = allAreas.filter(a => Array.isArray(mapping[a]) && mapping[a].length > 0).length;
+    const totalLinks = Object.values(mapping).reduce((s, arr) => s + (Array.isArray(arr) ? arr.length : 0), 0);
+    $('mapping-summary').innerHTML = `
+      <div class="stat-card">
+        <div class="icon-box"><i class="fa-solid fa-map"></i></div>
+        <div><div class="num">${allAreas.length}</div><div class="label">Aree totali</div></div>
+      </div>
+      <div class="stat-card">
+        <div class="icon-box"><i class="fa-solid fa-user-tie"></i></div>
+        <div><div class="num">${allSales.length}</div><div class="label">Sales totali</div></div>
+      </div>
+      <div class="stat-card">
+        <div class="icon-box"><i class="fa-solid fa-link"></i></div>
+        <div><div class="num">${configured}</div><div class="label">Aree configurate · ${totalLinks} link</div></div>
+      </div>
+    `;
+  }
+
+  function renderMappingUI() {
+    renderSummary();
+    updateSaveBanner();
+    const list = $('mapping-list');
+    list.innerHTML = '';
+
+    allAreas.forEach(area => {
+      const selected = new Set(Array.isArray(mapping[area]) ? mapping[area] : []);
+      const details = document.createElement('details');
+      details.className = 'area-card';
+      details.dataset.area = area;
+
+      const summary = document.createElement('summary');
+      summary.innerHTML = `
+        <span class="area-name"><i class="fa-solid fa-chevron-right"></i>${escapeHtml(area)}</span>
+        <span class="area-meta ${selected.size ? 'badge-on' : ''}">
+          <i class="fa-solid ${selected.size ? 'fa-circle-check' : 'fa-circle-dot'}"></i>
+          <span class="cnt">${selected.size}</span> Sales
+        </span>`;
+      details.appendChild(summary);
+
+      const body = document.createElement('div');
+      body.className = 'area-body';
+
+      const tools = document.createElement('div');
+      tools.className = 'area-tools';
+      const bAll = document.createElement('button');
+      bAll.type = 'button'; bAll.className = 'chip chip-mini'; bAll.textContent = 'Seleziona tutti';
+      const bNone = document.createElement('button');
+      bNone.type = 'button'; bNone.className = 'chip chip-mini'; bNone.textContent = 'Deseleziona tutti';
+      tools.appendChild(bAll); tools.appendChild(bNone);
+      body.appendChild(tools);
+
+      const hint = document.createElement('div');
+      hint.className = 'area-hint';
+      hint.textContent = selected.size === 0
+        ? 'Nessun Sales associato: nella pagina principale saranno mostrati tutti.'
+        : `${selected.size} Sales associati: nella pagina principale saranno mostrati solo questi.`;
+      body.appendChild(hint);
+
+      const scroll = document.createElement('div');
+      scroll.className = 'chips-scroll';
+      const chipsWrap = document.createElement('div');
+      chipsWrap.className = 'chips';
+      scroll.appendChild(chipsWrap);
+      body.appendChild(scroll);
+
+      allSales.forEach(sale => {
+        const chip = document.createElement('button');
+        chip.type = 'button';
+        chip.className = 'chip' + (selected.has(sale) ? ' chip-on' : '');
+        chip.dataset.sale = sale;
+        chip.textContent = sale;
+        chip.addEventListener('click', () => {
+          if (selected.has(sale)) selected.delete(sale);
+          else selected.add(sale);
+          chip.classList.toggle('chip-on', selected.has(sale));
+          if (selected.size === 0) delete mapping[area];
+          else mapping[area] = Array.from(selected);
+          dirty = true;
+          saveMapping(false);           // auto-save silenzioso
+          updateSummary(summary, hint, selected);
+          renderSummary();
+          updateSaveBanner();
+        });
+        chipsWrap.appendChild(chip);
+      });
+
+      bAll.addEventListener('click', () => {
+        allSales.forEach(s => selected.add(s));
+        mapping[area] = Array.from(selected);
+        dirty = true;
+        saveMapping(false);
+        refreshChips(chipsWrap, selected);
+        updateSummary(summary, hint, selected);
+        renderSummary();
+        updateSaveBanner();
+        toast(`Tutti i Sales associati a "${area}"`, 'ok');
+      });
+      bNone.addEventListener('click', () => {
+        selected.clear();
+        delete mapping[area];
+        dirty = true;
+        saveMapping(false);
+        refreshChips(chipsWrap, selected);
+        updateSummary(summary, hint, selected);
+        renderSummary();
+        updateSaveBanner();
+        toast(`Associazioni rimosse da "${area}"`, 'ok');
+      });
+
+      details.appendChild(body);
+      list.appendChild(details);
+    });
+  }
+
+  function refreshChips(wrap, selected) {
+    wrap.querySelectorAll('.chip').forEach(c => {
+      c.classList.toggle('chip-on', selected.has(c.dataset.sale));
+    });
+  }
+  function updateSummary(summary, hint, selected) {
+    summary.querySelector('.cnt').textContent = selected.size;
+    summary.querySelector('.area-meta').classList.toggle('badge-on', selected.size > 0);
+    summary.querySelector('.area-meta i').className = 'fa-solid ' + (selected.size ? 'fa-circle-check' : 'fa-circle-dot');
+    hint.textContent = selected.size === 0
+      ? 'Nessun Sales associato: nella pagina principale saranno mostrati tutti.'
+      : `${selected.size} Sales associati: nella pagina principale saranno mostrati solo questi.`;
+  }
+
+  /* ===== Eventi ===== */
+  $('btn-load-cfg').addEventListener('click', async () => {
+    showStatus('load-status', 'Caricamento da CFG/Liste.xlsx…', 'ok');
+    const ok = await tryLoadCfg();
+    if (!ok) showStatus('load-status', 'Impossibile trovare CFG/Liste.xlsx. Usa "Scegli file locale".', 'err');
+  });
+  $('btn-load-local').addEventListener('click', () => { $('input-template-excel').value = ''; $('input-template-excel').click(); });
+  $('btn-load-cache').addEventListener('click', () => { if (!tryLoadCache()) toast('Nessuna cache disponibile', 'err'); });
+  $('input-template-excel').addEventListener('change', async e => {
+    const f = e.target.files && e.target.files[0];
+    if (!f) return;
+    try { await loadFromBuffer(await f.arrayBuffer(), f.name); }
+    catch (err) { showStatus('load-status', 'Errore: ' + escapeHtml(err.message), 'err'); }
+    finally { e.target.value = ''; }
+  });
+  $('area-search').addEventListener('input', e => {
+    const q = e.target.value.trim().toLowerCase();
+    document.querySelectorAll('.area-card').forEach(card => {
+      card.style.display = !q || card.dataset.area.toLowerCase().includes(q) ? '' : 'none';
+    });
+  });
+  $('btn-expand-all').addEventListener('click', () => {
+    document.querySelectorAll('.area-card').forEach(c => { if (c.style.display !== 'none') c.open = true; });
+  });
+  $('btn-collapse-all').addEventListener('click', () => {
+    document.querySelectorAll('.area-card').forEach(c => { c.open = false; });
+  });
+
+  /* Salva ora */
+  $('btn-save-now').addEventListener('click', () => {
+    saveMapping(true);
+    updateSaveBanner();
+  });
+
+  /* Ricarica salvata */
+  $('btn-reload-saved').addEventListener('click', () => {
+    if (!confirm('Ricaricare la configurazione salvata? Eventuali modifiche fatte dopo l\'ultimo salvataggio andranno perse.')) return;
+    loadMapping();
+    dirty = false;
+    renderMappingUI();
+    const configured = allAreas.filter(a => Array.isArray(mapping[a]) && mapping[a].length > 0).length;
+    const tot = Object.values(mapping).reduce((s, arr) => s + (Array.isArray(arr) ? arr.length : 0), 0);
+    toast(`Ricaricata: ${configured} aree, ${tot} link`, 'ok');
+  });
+
+  /* Esporta JSON */
+  $('btn-export-json').addEventListener('click', () => {
+    const data = {
+      version: 1,
+      exportedAt: new Date().toISOString(),
+      areaSalesMapping: mapping
+    };
+    const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    const ts = new Date().toISOString().slice(0,10);
+    a.href = url; a.download = `associazioni_area_sales_${ts}.json`;
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 10000);
+    toast('File JSON esportato', 'ok');
+  });
+
+  /* Importa JSON */
+  $('btn-import-json').addEventListener('click', () => { $('input-import-json').value = ''; $('input-import-json').click(); });
+  $('input-import-json').addEventListener('change', async e => {
+    const f = e.target.files && e.target.files[0];
+    if (!f) return;
+    try {
+      const text = await f.text();
+      const data = JSON.parse(text);
+      const imported = data.areaSalesMapping || data;   // supporta sia wrapper che mappa pura
+      if (!imported || typeof imported !== 'object') throw new Error('Formato non riconosciuto');
+      const valid = {};
+      Object.keys(imported).forEach(area => {
+        if (allAreas.includes(area) && Array.isArray(imported[area])) {
+          const filtered = imported[area].filter(s => allSales.includes(s));
+          if (filtered.length) valid[area] = filtered;
+        }
+      });
+      if (!Object.keys(valid).length) throw new Error('Nessuna associazione valida per le liste correnti');
+      if (!confirm(`Importare ${Object.keys(valid).length} associazioni? Le associazioni correnti per queste aree verranno sostituite.`)) return;
+      Object.keys(valid).forEach(a => { mapping[a] = valid[a]; });
+      saveMapping(true);
+      renderMappingUI();
+    } catch (err) {
+      showStatus('load-status', 'Errore importazione JSON: ' + escapeHtml(err.message), 'err');
+      toast('Errore importazione JSON', 'err');
+    } finally { e.target.value = ''; }
+  });
+
+  /* Cancella tutte */
+  $('btn-clear-all').addEventListener('click', () => {
+    if (!confirm('Cancellare tutte le associazioni Area → Sales? L\'operazione non è reversibile.')) return;
+    mapping = {};
+    saveMapping(true);
+    renderMappingUI();
+    toast('Tutte le associazioni cancellate', 'ok');
+  });
+
+  /* ===== Avvio ===== */
+  (async function init() {
+    loadMapping();
+    if (!tryLoadCache()) {
+      const ok = await tryLoadCfg();
+      if (!ok) {
+        showStatus('load-status', 'Nessun file trovato automaticamente. Carica Liste.xlsx manualmente.', 'err');
+        // Mostra comunque il pulsante "Usa cache" se c'è
+        if (localStorage.getItem(LS_OPTIONS_KEY)) $('btn-load-cache').style.display = 'inline-flex';
+      }
+    } else {
+      // Cache disponibile: mostra anche il pulsante di ricarica manuale
+      $('btn-load-cache').style.display = 'inline-flex';
+    }
+  })();
+})();
+</script>
+</body>
+</html>
